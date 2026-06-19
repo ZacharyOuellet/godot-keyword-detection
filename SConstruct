@@ -15,8 +15,16 @@ sources = Glob("build/*.cpp")
 
 output_dir = "addons/mfcc_dtw/bin"
 
+target_name = "{}{}{}".format(
+    "mfcc_dtw",
+    env["suffix"],
+    env["SHLIBSUFFIX"],
+)
+
 library = env.SharedLibrary(
-    target=os.path.join(output_dir, "libmfcc_dtw"),
+    target=File(
+        os.path.join(output_dir, target_name)
+    ),
     source=sources,
 )
 
