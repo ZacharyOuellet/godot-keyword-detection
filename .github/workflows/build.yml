@@ -1,0 +1,74 @@
+name: Build GDExtension
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux (x86_64)
+            os: ubuntu-22.04
+            platform: linux
+            arch: x86_64
+
+          - name: Windows (x86_64)
+            os: windows-latest
+            platform: windows
+            arch: x86_64
+
+          - name: macOS (universal)
+            os: macos-latest
+            platform: macos
+            arch: universal
+
+          - name: iOS (arm64)
+            os: macos-latest
+            platform: ios
+            arch: arm64
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive   # pulls in godot-cpp
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: Install SCons
+        run: pip install scons
+
+      # Linux only: ensure g++ is available
+      - name: Install Linux deps
+        if: matrix.os == 'linux'
+        run: sudo apt-get update && sudo apt-get install -y gcc g++ build-essential
+
+      - name: Build (debug)
+        run: scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=template_debug
+
+      - name: Build (release)
+        run: scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=template_release
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: libmfcc_dtw-${{ matrix.platform }}-${{ matrix.arch }}
+          path: addons/mfcc_dtw/bin/*
+      
+      - name: Cache SCons
+        uses: actions/cache@v4
+        with:
+          path: |
+            .scons_cache
+            godot-cpp/.scons_cache
+          key: scons-${{ runner.os }}-${{ matrix.platform }}-${{ matrix.arch }}

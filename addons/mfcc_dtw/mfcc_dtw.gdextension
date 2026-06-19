@@ -1,0 +1,13 @@
+[configuration]
+entry_symbol = "mfcc_dtw_library_init"
+compatibility_minimum = "4.1"
+
+[libraries]
+linux.debug.x86_64   = "res://addons/mfcc_dtw/bin/libmfcc_dtw.linux.debug.x86_64.so"
+linux.release.x86_64 = "res://addons/mfcc_dtw/bin/libmfcc_dtw.linux.release.x86_64.so"
+
+windows.debug.x86_64   = "res://addons/mfcc_dtw/bin/libmfcc_dtw.windows.debug.x86_64.dll"
+windows.release.x86_64 = "res://addons/mfcc_dtw/bin/libmfcc_dtw.windows.release.x86_64.dll"
+
+macos.debug   = "res://addons/mfcc_dtw/bin/libmfcc_dtw.macos.debug.universal.dylib"
+macos.release = "res://addons/mfcc_dtw/bin/libmfcc_dtw.macos.release.universal.dylib"

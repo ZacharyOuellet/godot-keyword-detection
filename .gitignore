@@ -1,0 +1,12 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+# Scons build files
+addons/mfcc_dtw/bin/
+.scons_cache/
+build/
+.sconsign.dblite
+
+# When running the pipeline locally
+artifacts/
