@@ -53,6 +53,14 @@ jobs:
         if: matrix.os == 'linux'
         run: sudo apt-get update && sudo apt-get install -y gcc g++ build-essential
 
+      - name: Restore SCons cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            .scons_cache
+            godot-cpp/.scons_cache
+          key: scons-${{ runner.os }}-${{ matrix.platform }}-${{ matrix.arch }}
+
       - name: Build (debug)
         run: scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=template_debug
 
@@ -64,14 +72,6 @@ jobs:
         with:
           name: libmfcc_dtw-${{ matrix.platform }}-${{ matrix.arch }}
           path: addons/mfcc_dtw/bin/*
-
-      - name: Cache SCons
-        uses: actions/cache@v5.0.5
-        with:
-          path: |
-            .scons_cache
-            godot-cpp/.scons_cache
-          key: scons-${{ runner.os }}-${{ matrix.platform }}-${{ matrix.arch }}
 
 
   package:
@@ -97,7 +97,7 @@ jobs:
       - name: Create zip
         run: |
           cd bin
-          zip -r ../mfcc_dtw.zip .
+          zip -r ../mfcc_dtw_bin.zip .
 
       - name: Upload final zip
         uses: actions/upload-artifact@v7
