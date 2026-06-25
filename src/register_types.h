@@ -4,5 +4,5 @@
 
 using namespace godot;
 
-void initialize_mfcc_dtw_module(ModuleInitializationLevel p_level);
-void uninitialize_mfcc_dtw_module(ModuleInitializationLevel p_level);
+void initialize_mfcc_dtw_types(ModuleInitializationLevel p_level);
+void uninitialize_mfcc_dtw_types(ModuleInitializationLevel p_level);
