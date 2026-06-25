@@ -66,12 +66,14 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib
 
+
       # Setup dependencies
       - name: Setup godot-cpp
         uses: ./godot-cpp/.github/actions/setup-godot-cpp
         with:
           platform: ${{ matrix.target.platform }}
           em-version: 3.1.62
+          windows-compiler: msvc
 
       # Build GDExtension (with caches)
 
