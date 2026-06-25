@@ -21,28 +21,23 @@ jobs:
         # while still achieving adequate coverage.
         # To make a full build with all combinations, use the make_build.yml workflow instead.
         include:
-          - target: { platform: linux, arch: x86_64, os: ubuntu-22.04 }
-            runner: ubuntu-22.04
+          - target: { platform: linux, arch: x86_64, os: ubuntu-22.04 , runner: ["self-hosted", "linux"]}
             target-type: template_debug
             float-precision: single
-          - target: { platform: windows, arch: x86_64, os: windows }
-            runner: ["self-hosted", "windows"]
+          - target: { platform: windows, arch: x86_64, os: windows, runner: ["self-hosted", "windows"]}
             target-type: template_release
             float-precision: single
-          - target: { platform: macos, arch: universal, os: macos-latest }
-            runner: macos-latest
+          # - target: { platform: macos, arch: universal, os: macos-latest, runner: macos-latest }
+          #   target-type: template_debug
+          #   float-precision: single
+          - target: { platform: android, arch: arm64, os: ubuntu-22.04, runner: ["self-hosted", "linux"] }
             target-type: template_debug
             float-precision: single
-          - target: { platform: android, arch: arm64, os: ubuntu-22.04 }
-            runner: ubuntu-22.04
-            target-type: template_debug
-            float-precision: single
-          - target: { platform: web, arch: wasm32, os: ubuntu-22.04 }
-            runner: ubuntu-22.04
+          - target: { platform: web, arch: wasm32, os: ubuntu-22.04, runner: ["self-hosted", "linux"] }
             target-type: template_release
             float-precision: single
 
-    runs-on: ${{ matrix.runner }}
+    runs-on: ${{ matrix.target.runner }}
     steps:
       # Clone this repository
       - name: Checkout
@@ -50,22 +45,28 @@ jobs:
         with:
           submodules: true
 
-      # Lint
-      #- name: Setup clang-format
-      #  shell: bash
-      #  run: |
-      #    python -m pip install clang-format
-      #- name: Run clang-format
-      #  shell: bash
-      #  run: |
-      #    clang-format src/** --dry-run --Werror
+      - name: Install Linux cross-compilation toolchains
+        if: ${{ matrix.target.platform == 'linux' && (matrix.target.arch == 'arm64' || matrix.target.arch == 'arm32') }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y \
+            gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
+            gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
 
-      # Add linux x86_32 toolchain
       - name: Install multilib support
         if: ${{ matrix.target.platform == 'linux' && matrix.target.arch == 'x86_32' }}
         run: |
           sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib
 
+      - name: Configure cross-compiler shims for Linux ARM64
+        if: ${{ matrix.target.platform == 'linux' && matrix.target.arch == 'arm64' }}
+        shell: bash
+        run: |
+          mkdir -p "$HOME/.local/cross-shims"
+          ln -sf /usr/bin/aarch64-linux-gnu-gcc  "$HOME/.local/cross-shims/gcc"
+          ln -sf /usr/bin/aarch64-linux-gnu-g++  "$HOME/.local/cross-shims/g++"
+          ln -sf /usr/bin/aarch64-linux-gnu-ar   "$HOME/.local/cross-shims/ar"
+          ln -sf /usr/bin/aarch64-linux-gnu-strip "$HOME/.local/cross-shims/strip"
+          echo "$HOME/.local/cross-shims" >> "$GITHUB_PATH"
 
       # Setup dependencies
       - name: Setup godot-cpp
@@ -74,6 +75,20 @@ jobs:
           platform: ${{ matrix.target.platform }}
           em-version: 3.1.62
           windows-compiler: msvc
+
+      - name: Fix python3 for emcc on self-hosted
+        if: ${{ matrix.target.platform == 'web' && contains(join(matrix.target.runner, ','), 'self-hosted') }}
+        shell: bash
+        run: |
+          mkdir -p "$HOME/.local/shims"
+          ln -sf /usr/bin/python3 "$HOME/.local/shims/python3"
+          echo "$HOME/.local/shims" >> "$GITHUB_PATH"
+
+      - name: Configure cross-compiler for Linux ARM64
+        if: ${{ matrix.target.platform == 'linux' && matrix.target.arch == 'arm64' }}
+        shell: bash
+        run: |
+          echo "SCONS_EXTRA=CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ LINK=aarch64-linux-gnu-g++" >> $GITHUB_ENV
 
       # Build GDExtension (with caches)
 

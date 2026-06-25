@@ -15,25 +15,25 @@ jobs:
         # See https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow
         target:
           [
-            { platform: linux, arch: x86_64, os: ubuntu-22.04 },
-            { platform: linux, arch: x86_32, os: ubuntu-22.04 },
-            { platform: linux, arch: arm64, os: ubuntu-22.04-arm },
-            { platform: linux, arch: arm32, os: ubuntu-22.04-arm },
-            { platform: windows, arch: x86_64, os: windows-latest },
-            { platform: windows, arch: x86_32, os: windows-latest },
-            { platform: windows, arch: arm64, os: windows-latest },
-            { platform: macos, arch: universal, os: macos-latest },
-            { platform: android, arch: x86_64, os: ubuntu-22.04 },
-            { platform: android, arch: x86_32, os: ubuntu-22.04 },
-            { platform: android, arch: arm64, os: ubuntu-22.04 },
-            { platform: android, arch: arm32, os: ubuntu-22.04 },
-            { platform: ios, arch: arm64, os: macos-latest },
-            { platform: web, arch: wasm32, os: ubuntu-22.04 },
+            { platform: linux, arch: x86_64, os: ubuntu-22.04 , runner: ["self-hosted", "linux"]},
+            { platform: linux, arch: x86_32, os: ubuntu-22.04 , runner: ["self-hosted", "linux"] },
+            { platform: linux, arch: arm64, os: ubuntu-22.04-arm ,runner: ["self-hosted", "linux"]},
+            { platform: linux, arch: arm32, os: ubuntu-22.04-arm, runner: ["self-hosted", "linux"] },
+            { platform: windows, arch: x86_64, os: windows-latest, runner: ["self-hosted", "windows"] },
+            { platform: windows, arch: x86_32, os: windows-latest, runner: ["self-hosted", "windows"] },
+            { platform: windows, arch: arm64, os: windows-latest, runner: ["self-hosted", "windows"] },
+            { platform: macos, arch: universal, os: macos-latest, runner: macos-latest },
+            { platform: android, arch: x86_64, os: ubuntu-22.04, runner: ["self-hosted", "linux"] },
+            { platform: android, arch: x86_32, os: ubuntu-22.04, runner: ["self-hosted", "linux"] },
+            { platform: android, arch: arm64, os: ubuntu-22.04, runner: ["self-hosted", "linux"] },
+            { platform: android, arch: arm32, os: ubuntu-22.04, runner: ["self-hosted", "linux"] },
+            { platform: ios, arch: arm64, os: macos-latest, runner: macos-latest },
+            { platform: web, arch: wasm32, os: ubuntu-22.04, runner: ["self-hosted", "linux"] },
           ]
         target-type: [template_debug, template_release]
         float-precision: [single]
 
-    runs-on: ${{ matrix.target.os }}
+    runs-on: ${{ matrix.target.runner }}
     steps:
       # Clone this repository
       - name: Checkout
@@ -41,11 +41,29 @@ jobs:
         with:
           submodules: true
 
+      - name: Install Linux cross-compilation toolchains
+        if: ${{ matrix.target.platform == 'linux' && (matrix.target.arch == 'arm64' || matrix.target.arch == 'arm32') }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y \
+            gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
+            gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+
       # Add linux x86_32 toolchain
       - name: Install multilib support
         if: ${{ matrix.target.platform == 'linux' && matrix.target.arch == 'x86_32' }}
         run: |
           sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib
+
+      - name: Configure cross-compiler shims for Linux ARM64
+        if: ${{ matrix.target.platform == 'linux' && matrix.target.arch == 'arm64' }}
+        shell: bash
+        run: |
+          mkdir -p "$HOME/.local/cross-shims"
+          ln -sf /usr/bin/aarch64-linux-gnu-gcc  "$HOME/.local/cross-shims/gcc"
+          ln -sf /usr/bin/aarch64-linux-gnu-g++  "$HOME/.local/cross-shims/g++"
+          ln -sf /usr/bin/aarch64-linux-gnu-ar   "$HOME/.local/cross-shims/ar"
+          ln -sf /usr/bin/aarch64-linux-gnu-strip "$HOME/.local/cross-shims/strip"
+          echo "$HOME/.local/cross-shims" >> "$GITHUB_PATH"
 
       # Setup dependencies
       - name: Setup godot-cpp
@@ -53,6 +71,15 @@ jobs:
         with:
           platform: ${{ matrix.target.platform }}
           em-version: 3.1.62
+          windows-compiler: msvc
+
+      - name: Fix python3 for emcc on self-hosted
+        if: ${{ matrix.target.platform == 'web' && contains(join(matrix.target.runner, ','), 'self-hosted') }}
+        shell: bash
+        run: |
+          mkdir -p "$HOME/.local/shims"
+          ln -sf /usr/bin/python3 "$HOME/.local/shims/python3"
+          echo "$HOME/.local/shims" >> "$GITHUB_PATH"
 
       # Build GDExtension (with caches)
 
@@ -67,7 +94,7 @@ jobs:
         env:
           SCONS_CACHE: ${{ github.workspace }}/.scons-cache/
         run: |
-          scons target=${{ matrix.target-type }} platform=${{ matrix.target.platform }} arch=${{ matrix.target.arch }} precision=${{ matrix.float-precision }}
+          scons target=${{ matrix.target-type }} platform=${{ matrix.target.platform }} arch=${{ matrix.target.arch }} precision=${{ matrix.float-precision }} ${SCONS_EXTRA:-}
 
       - name: Save .scons_cache
         uses: ./godot-cpp/.github/actions/godot-cache-save
@@ -95,6 +122,7 @@ jobs:
   merge:
     runs-on: ubuntu-22.04
     needs: build
+    if: ${{ always()}}
     steps:
       - name: Merge Artifacts
         uses: actions/upload-artifact/merge@v7
