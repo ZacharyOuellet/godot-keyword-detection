@@ -16,19 +16,19 @@ jobs:
         target:
           [
             { platform: linux, arch: x86_64, os: ubuntu-22.04 , runner: ["self-hosted", "linux"]},
-            { platform: linux, arch: x86_32, os: ubuntu-22.04 , runner: ["self-hosted", "linux"] },
-            { platform: linux, arch: arm64, os: ubuntu-22.04-arm ,runner: ["self-hosted", "linux"]},
+            #{ platform: linux, arch: x86_32, os: ubuntu-22.04 , runner: ["self-hosted", "linux"] },
+            #{ platform: linux, arch: arm64, os: ubuntu-22.04-arm ,runner: ["self-hosted", "linux"]},
             { platform: linux, arch: arm32, os: ubuntu-22.04-arm, runner: ["self-hosted", "linux"] },
             { platform: windows, arch: x86_64, os: windows-latest, runner: ["self-hosted", "windows"] },
-            { platform: windows, arch: x86_32, os: windows-latest, runner: ["self-hosted", "windows"] },
+            #{ platform: windows, arch: x86_32, os: windows-latest, runner: ["self-hosted", "windows"] },
             { platform: windows, arch: arm64, os: windows-latest, runner: ["self-hosted", "windows"] },
             { platform: macos, arch: universal, os: macos-latest, runner: macos-latest },
-            { platform: android, arch: x86_64, os: ubuntu-22.04, runner: ["self-hosted", "linux"] },
-            { platform: android, arch: x86_32, os: ubuntu-22.04, runner: ["self-hosted", "linux"] },
-            { platform: android, arch: arm64, os: ubuntu-22.04, runner: ["self-hosted", "linux"] },
-            { platform: android, arch: arm32, os: ubuntu-22.04, runner: ["self-hosted", "linux"] },
-            { platform: ios, arch: arm64, os: macos-latest, runner: macos-latest },
-            { platform: web, arch: wasm32, os: ubuntu-22.04, runner: ["self-hosted", "linux"] },
+            #{ platform: android, arch: x86_64, os: ubuntu-22.04, runner: ["self-hosted", "linux"] },
+            #{ platform: android, arch: x86_32, os: ubuntu-22.04, runner: ["self-hosted", "linux"] },
+            #{ platform: android, arch: arm64, os: ubuntu-22.04, runner: ["self-hosted", "linux"] },
+            #{ platform: android, arch: arm32, os: ubuntu-22.04, runner: ["self-hosted", "linux"] },
+            #{ platform: ios, arch: arm64, os: macos-latest, runner: macos-latest },
+            #{ platform: web, arch: wasm32, os: ubuntu-22.04, runner: ["self-hosted", "linux"] },
           ]
         target-type: [template_debug, template_release]
         float-precision: [single]
@@ -113,20 +113,20 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v7
         with:
-          name: godot-cpp-template-${{ matrix.target.platform }}-${{ matrix.target.arch }}-${{ matrix.float-precision }}-${{ matrix.target-type }}
+          name: godot-mfcc-dtw-${{ matrix.target.platform }}-${{ matrix.target.arch }}-${{ matrix.float-precision }}-${{ matrix.target-type }}
           path: |
             ${{ github.workspace }}/bin/**
 
-  # Merges all the build artifacts together into a single godot-cpp-template artifact.
+  # Merges all the build artifacts together into a single godot-mfcc-dtw artifact.
   # If you comment out this step, all the builds will be uploaded individually.
   merge:
-    runs-on: ubuntu-22.04
+    runs-on: ["self-hosted", "linux"]
     needs: build
     if: ${{ always()}}
     steps:
       - name: Merge Artifacts
         uses: actions/upload-artifact/merge@v7
         with:
-          name: godot-cpp-template
-          pattern: godot-cpp-template-*
+          name: godot-mfcc-dtw
+          pattern: godot-mfcc-dtw-*
           delete-merged: true
