@@ -27,10 +27,11 @@ void DTWMatcher::_bind_methods() {
 
     ClassDB::bind_method(D_METHOD("compute", "seq_a", "seq_b"),     &DTWMatcher::compute);
 
-    ClassDB::bind_method(D_METHOD("add_template", "label", "mfcc"), &DTWMatcher::add_template);
-    ClassDB::bind_method(D_METHOD("clear_templates"),                &DTWMatcher::clear_templates);
-    ClassDB::bind_method(D_METHOD("classify", "mfcc"),              &DTWMatcher::classify);
-    ClassDB::bind_method(D_METHOD("classify_with_score", "mfcc"),   &DTWMatcher::classify_with_score);
+    ClassDB::bind_method(D_METHOD("add_template", "label", "mfcc"),     &DTWMatcher::add_template);
+    ClassDB::bind_method(D_METHOD("clear_templates"),                   &DTWMatcher::clear_templates);
+    ClassDB::bind_method(D_METHOD("classify", "mfcc"),                  &DTWMatcher::classify);
+    ClassDB::bind_method(D_METHOD("classify_with_best_score", "mfcc"),  &DTWMatcher::classify_with_best_score);
+    ClassDB::bind_method(D_METHOD("classify_with_every_score", "mfcc"), &DTWMatcher::classify_with_every_score);
 
     ADD_PROPERTY(PropertyInfo(Variant::INT, "distance_metric", PROPERTY_HINT_ENUM, "Euclidean,Cosine"),
                  "set_distance_metric", "get_distance_metric");
@@ -143,11 +144,11 @@ void DTWMatcher::clear_templates() {
 }
 
 String DTWMatcher::classify(const TypedArray<PackedFloat32Array> &p_mfcc) const {
-    Dictionary d = classify_with_score(p_mfcc);
+    Dictionary d = classify_with_best_score(p_mfcc);
     return d.get("label", String());
 }
 
-Dictionary DTWMatcher::classify_with_score(const TypedArray<PackedFloat32Array> &p_mfcc) const {
+Dictionary DTWMatcher::classify_with_best_score(const TypedArray<PackedFloat32Array> &p_mfcc) const {
     Dictionary result;
     if (_templates.empty()) {
         UtilityFunctions::push_warning("DTWMatcher: no templates registered.");
@@ -163,8 +164,28 @@ Dictionary DTWMatcher::classify_with_score(const TypedArray<PackedFloat32Array> 
             best_dist  = dist;
             best_label = t.label;
         }
+        # ifdef DEBUG_ENABLED
+        UtilityFunctions::print("DTWMatcher: template=", t.label, " dist=", dist);
+        # endif
     }
     result["label"]    = best_label;
     result["distance"] = best_dist;
+    return result;
+}
+
+Dictionary DTWMatcher::classify_with_every_score(const TypedArray<PackedFloat32Array> &p_mfcc) const {
+    Dictionary result;
+    if (_templates.empty()) {
+        UtilityFunctions::push_warning("DTWMatcher: no templates registered.");
+        return result;
+    }
+
+    for (const Template &t : _templates) {
+        float dist = compute(p_mfcc, t.mfcc);
+        result[t.label] = dist;
+        # ifdef DEBUG_ENABLED
+        UtilityFunctions::print("DTWMatcher: template=", t.label, " dist=", dist);
+        # endif
+    }
     return result;
 }

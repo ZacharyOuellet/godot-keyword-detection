@@ -1,0 +1,56 @@
+[gd_scene format=3 uid="uid://l3tctyis050i"]
+
+[ext_resource type="Script" uid="uid://1qecghivrrry" path="res://components/recorder.gd" id="2_4fe4l"]
+[ext_resource type="Texture2D" uid="uid://cswim7txakesa" path="res://assets/DebugSkipBreakpointsOff.svg" id="3_muxhn"]
+[ext_resource type="Texture2D" uid="uid://nhnhasxu0s0r" path="res://assets/TransitionImmediateAuto.svg" id="4_isgtb"]
+[ext_resource type="Texture2D" uid="uid://7c3gk0pknhkk" path="res://assets/Save.svg" id="5_8bwfh"]
+[ext_resource type="Texture2D" uid="uid://bxy8e51txjf1u" path="res://assets/GuiClose.svg" id="6_p5kqj"]
+
+[sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_2jas5"]
+
+[node name="Recorder" type="VBoxContainer" unique_id=1134035084]
+offset_left = 4.0
+offset_top = 7.0
+offset_right = 211.0
+offset_bottom = 85.0
+alignment = 1
+script = ExtResource("2_4fe4l")
+
+[node name="AudioStreamInput" type="AudioStreamPlayer" parent="." unique_id=1271920672]
+stream = SubResource("AudioStreamMicrophone_2jas5")
+autoplay = true
+mix_target = 2
+bus = &"Record"
+
+[node name="AudioStreamOutput" type="AudioStreamPlayer" parent="." unique_id=1326868621]
+
+[node name="Label" type="Label" parent="." unique_id=131339201]
+layout_mode = 2
+text = "LABEL TEXT PLACEHOLDER"
+horizontal_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="." unique_id=1877320818]
+layout_mode = 2
+alignment = 1
+
+[node name="Record" type="Button" parent="Buttons" unique_id=779827551]
+layout_mode = 2
+toggle_mode = true
+icon = ExtResource("3_muxhn")
+
+[node name="Play" type="Button" parent="Buttons" unique_id=383964012]
+layout_mode = 2
+icon = ExtResource("4_isgtb")
+
+[node name="Save" type="Button" parent="Buttons" unique_id=1779961133]
+layout_mode = 2
+icon = ExtResource("5_8bwfh")
+
+[node name="Cancel" type="Button" parent="Buttons" unique_id=793304400]
+layout_mode = 2
+icon = ExtResource("6_p5kqj")
+
+[connection signal="pressed" from="Buttons/Record" to="." method="_on_record_button_pressed"]
+[connection signal="pressed" from="Buttons/Play" to="." method="_on_play_button_pressed"]
+[connection signal="pressed" from="Buttons/Save" to="." method="_on_save_button_pressed"]
+[connection signal="pressed" from="Buttons/Cancel" to="." method="_on_cancel_button_pressed"]

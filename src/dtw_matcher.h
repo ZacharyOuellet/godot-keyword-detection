@@ -55,7 +55,10 @@ public:
     void   clear_templates();
     String classify(const TypedArray<PackedFloat32Array> &p_mfcc) const;
     // Returns a Dictionary { label: String, distance: float } for the best match
-    Dictionary classify_with_score(const TypedArray<PackedFloat32Array> &p_mfcc) const;
+    Dictionary classify_with_best_score(const TypedArray<PackedFloat32Array> &p_mfcc) const;
+
+    // Returns a Dictionary { label: String, distance: float } for every template
+    Dictionary classify_with_every_score(const TypedArray<PackedFloat32Array> &p_mfcc) const;
 
 protected:
     static void _bind_methods();

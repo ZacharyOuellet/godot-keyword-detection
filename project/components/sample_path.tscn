@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://c2ea2iy5kh0ev"]
+
+[ext_resource type="Script" uid="uid://fr27kfd6ym34" path="res://components/sample_path.gd" id="1_85536"]
+[ext_resource type="Texture2D" uid="uid://nhnhasxu0s0r" path="res://assets/TransitionImmediateAuto.svg" id="2_ysobb"]
+[ext_resource type="Texture2D" uid="uid://bxy8e51txjf1u" path="res://assets/GuiClose.svg" id="3_l0ftm"]
+
+[node name="SamplePath" type="HBoxContainer" unique_id=1961964032]
+script = ExtResource("1_85536")
+
+[node name="Label" type="Label" parent="." unique_id=1409575265]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "PATH"
+
+[node name="Play" type="TextureButton" parent="." unique_id=1578057198]
+custom_minimum_size = Vector2(25, 0)
+layout_mode = 2
+texture_normal = ExtResource("2_ysobb")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Delete" type="TextureButton" parent="." unique_id=110160686]
+custom_minimum_size = Vector2(25, 0)
+layout_mode = 2
+texture_normal = ExtResource("3_l0ftm")
+ignore_texture_size = true
+stretch_mode = 5
+
+[connection signal="pressed" from="Play" to="." method="_on_play_pressed"]
+[connection signal="pressed" from="Delete" to="." method="_on_delete_pressed"]

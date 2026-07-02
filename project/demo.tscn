@@ -1,0 +1,54 @@
+[gd_scene format=3 uid="uid://dsoy40ee2t0y5"]
+
+[ext_resource type="PackedScene" uid="uid://dh0oj81pufivs" path="res://components/samples_panel.tscn" id="1_5hfv0"]
+[ext_resource type="Script" uid="uid://ld3b3am14dfr" path="res://demo.gd" id="1_c6xj6"]
+[ext_resource type="PackedScene" uid="uid://l3tctyis050i" path="res://components/recorder.tscn" id="2_0bhed"]
+[ext_resource type="Texture2D" uid="uid://ybconef2ni8t" path="res://assets/ImportCheck.svg" id="3_m0rpm"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_m0rpm"]
+font_size = 24
+
+[node name="Demo" type="Control" unique_id=1864649888]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_c6xj6")
+
+[node name="SamplesPanel" parent="." unique_id=2095306762 instance=ExtResource("1_5hfv0")]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.5
+offset_right = 3.0
+
+[node name="CompareContainer" type="VBoxContainer" parent="." unique_id=723885921]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 0
+grow_vertical = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="CompareContainer" unique_id=211694493]
+layout_mode = 2
+text = "Compare to another audio clip"
+label_settings = SubResource("LabelSettings_m0rpm")
+horizontal_alignment = 1
+
+[node name="Recorder" parent="CompareContainer" unique_id=1134035084 instance=ExtResource("2_0bhed")]
+layout_mode = 2
+default_label_text = "Compare sample"
+confirm_button_texture = ExtResource("3_m0rpm")
+
+[node name="DistanceLabel" type="Label" parent="CompareContainer" unique_id=748236992]
+layout_mode = 2
+text = "AVERAGE DISTANCE:
+MINIMAL DISTANCE:
+MAXIMAL DISTANCE:"
+horizontal_alignment = 1
+
+[connection signal="recording_confirmed" from="CompareContainer/Recorder" to="." method="_on_compare_request"]

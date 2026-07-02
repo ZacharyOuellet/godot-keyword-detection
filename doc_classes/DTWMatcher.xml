@@ -20,7 +20,13 @@
 			<description>
 			</description>
 		</method>
-		<method name="classify_with_score" qualifiers="const">
+		<method name="classify_with_best_score" qualifiers="const">
+			<return type="Dictionary" />
+			<param index="0" name="mfcc" type="PackedFloat32Array[]" />
+			<description>
+			</description>
+		</method>
+		<method name="classify_with_every_score" qualifiers="const">
 			<return type="Dictionary" />
 			<param index="0" name="mfcc" type="PackedFloat32Array[]" />
 			<description>

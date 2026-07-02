@@ -11,5 +11,13 @@ config_version=5
 [application]
 
 config/name="dtw-mfcc"
+run/main_scene="uid://dsoy40ee2t0y5"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
+
+[audio]
+
+buses/default_bus_layout="uid://b5arum6486epg"
+general/ios/session_category=2
+general/ios/mix_with_others=true
+driver/enable_input=true
