@@ -25,54 +25,54 @@ using namespace godot;
 //   var label: String = dtw.classify(mfcc_unknown)  # returns closest label
 // ---------------------------------------------------------------------------
 class DTWMatcher : public RefCounted {
-	GDCLASS(DTWMatcher, RefCounted)
+    GDCLASS(DTWMatcher, RefCounted)
 
 public:
-	enum DistanceMetric {
-		EUCLIDEAN = 0,
-		COSINE    = 1,
-	};
+    enum DistanceMetric {
+        EUCLIDEAN = 0,
+        COSINE    = 1,
+    };
 
-	DTWMatcher();
-	~DTWMatcher();
+    DTWMatcher();
+    ~DTWMatcher();
 
-	// --- Distance metric ---
-	void set_distance_metric(int p_metric);
-	int  get_distance_metric() const;
+    // --- Distance metric ---
+    void set_distance_metric(int p_metric);
+    int  get_distance_metric() const;
 
-	// --- Sakoe-Chiba band width (0 = no constraint) ---
-	void set_band_width(int p_width);
-	int  get_band_width() const;
+    // --- Sakoe-Chiba band width (0 = no constraint) ---
+    void set_band_width(int p_width);
+    int  get_band_width() const;
 
-	// --- Core DTW ---
-	// Input : two Array<PackedFloat32Array> (MFCC sequences)
-	// Output: scalar DTW distance (lower = more similar)
-	float compute(const TypedArray<PackedFloat32Array> &p_seq_a,
-	              const TypedArray<PackedFloat32Array> &p_seq_b) const;
+    // --- Core DTW ---
+    // Input : two Array<PackedFloat32Array> (MFCC sequences)
+    // Output: scalar DTW distance (lower = more similar)
+    float compute(const TypedArray<PackedFloat32Array> &p_seq_a,
+                  const TypedArray<PackedFloat32Array> &p_seq_b) const;
 
-	// --- Template matching helpers ---
-	void   add_template(const String &p_label, const TypedArray<PackedFloat32Array> &p_mfcc);
-	void   clear_templates();
-	String classify(const TypedArray<PackedFloat32Array> &p_mfcc) const;
-	// Returns a Dictionary { label: String, distance: float } for the best match
-	Dictionary classify_with_score(const TypedArray<PackedFloat32Array> &p_mfcc) const;
+    // --- Template matching helpers ---
+    void   add_template(const String &p_label, const TypedArray<PackedFloat32Array> &p_mfcc);
+    void   clear_templates();
+    String classify(const TypedArray<PackedFloat32Array> &p_mfcc) const;
+    // Returns a Dictionary { label: String, distance: float } for the best match
+    Dictionary classify_with_score(const TypedArray<PackedFloat32Array> &p_mfcc) const;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 private:
-	float _frame_distance(const PackedFloat32Array &a, const PackedFloat32Array &b) const;
-	float _euclidean(const PackedFloat32Array &a, const PackedFloat32Array &b) const;
-	float _cosine(const PackedFloat32Array &a, const PackedFloat32Array &b) const;
+    float _frame_distance(const PackedFloat32Array &a, const PackedFloat32Array &b) const;
+    float _euclidean(const PackedFloat32Array &a, const PackedFloat32Array &b) const;
+    float _cosine(const PackedFloat32Array &a, const PackedFloat32Array &b) const;
 
-	int _distance_metric = EUCLIDEAN;
-	int _band_width      = 0; // 0 = full matrix (no Sakoe-Chiba constraint)
+    int _distance_metric = EUCLIDEAN;
+    int _band_width      = 0; // 0 = full matrix (no Sakoe-Chiba constraint)
 
-	struct Template {
-		String label;
-		TypedArray<PackedFloat32Array> mfcc;
-	};
-	std::vector<Template> _templates;
+    struct Template {
+        String label;
+        TypedArray<PackedFloat32Array> mfcc;
+    };
+    std::vector<Template> _templates;
 };
 
 VARIANT_ENUM_CAST(DTWMatcher::DistanceMetric);

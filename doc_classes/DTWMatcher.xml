@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="DTWMatcher" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="add_template">
+			<return type="void" />
+			<param index="0" name="label" type="String" />
+			<param index="1" name="mfcc" type="PackedFloat32Array[]" />
+			<description>
+			</description>
+		</method>
+		<method name="classify" qualifiers="const">
+			<return type="String" />
+			<param index="0" name="mfcc" type="PackedFloat32Array[]" />
+			<description>
+			</description>
+		</method>
+		<method name="classify_with_score" qualifiers="const">
+			<return type="Dictionary" />
+			<param index="0" name="mfcc" type="PackedFloat32Array[]" />
+			<description>
+			</description>
+		</method>
+		<method name="clear_templates">
+			<return type="void" />
+			<description>
+			</description>
+		</method>
+		<method name="compute" qualifiers="const">
+			<return type="float" />
+			<param index="0" name="seq_a" type="PackedFloat32Array[]" />
+			<param index="1" name="seq_b" type="PackedFloat32Array[]" />
+			<description>
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="band_width" type="int" setter="set_band_width" getter="get_band_width" default="0">
+		</member>
+		<member name="distance_metric" type="int" setter="set_distance_metric" getter="get_distance_metric" default="0">
+		</member>
+	</members>
+	<constants>
+		<constant name="EUCLIDEAN" value="0" enum="DistanceMetric">
+		</constant>
+		<constant name="COSINE" value="1" enum="DistanceMetric">
+		</constant>
+	</constants>
+</class>
