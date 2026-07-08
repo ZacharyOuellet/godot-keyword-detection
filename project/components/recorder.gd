@@ -25,7 +25,6 @@ var recording: AudioStreamWAV:
 		return recording
 	set(value):
 		var exists := value != null
-		Button
 		$Buttons/Record.disabled = exists
 		$Buttons/Play.disabled = !exists
 		$Buttons/Save.disabled = !exists

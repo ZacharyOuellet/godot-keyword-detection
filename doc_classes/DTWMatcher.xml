@@ -48,6 +48,8 @@
 	<members>
 		<member name="band_width" type="int" setter="set_band_width" getter="get_band_width" default="0">
 		</member>
+		<member name="classify_method" type="int" setter="set_classify_method" getter="get_classify_method" default="0">
+		</member>
 		<member name="distance_metric" type="int" setter="set_distance_metric" getter="get_distance_metric" default="0">
 		</member>
 	</members>
@@ -55,6 +57,10 @@
 		<constant name="EUCLIDEAN" value="0" enum="DistanceMetric">
 		</constant>
 		<constant name="COSINE" value="1" enum="DistanceMetric">
+		</constant>
+		<constant name="AVERAGE_DISTANCE" value="0" enum="ClassifyMethod">
+		</constant>
+		<constant name="BEST_MATCH" value="1" enum="ClassifyMethod">
 		</constant>
 	</constants>
 </class>

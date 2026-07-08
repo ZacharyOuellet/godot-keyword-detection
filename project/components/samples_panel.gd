@@ -4,10 +4,10 @@ extends Control
 
 var _stream_being_saved: AudioStreamWAV = null
 
-func get_all_file_paths() -> Array[String]:
-	var paths: Array[String] = []
+func get_all_file_paths_and_labels() -> Array[Dictionary]:
+	var paths: Array[Dictionary] = []
 	for node in %SampleContainer.get_children():
-		paths.append(node.text)
+		paths.append({"label": node.label, "path": node.path})
 	return paths
 
 func _on_load_from_file() -> void:
@@ -55,9 +55,10 @@ func _on_cancel_save():
 
 func add_to_list(filepath: String):
 	for node in %SampleContainer.get_children():
-		if "text" in node and node.text == filepath: return # No duplicates
+		if "text" in node and node.path == filepath: return # No duplicates
 	var node := sample_path_scene.instantiate()
-	node.text = filepath
+	node.path = filepath
+	node.label = filepath.split("/")[-1].split(".")[0] # first word before .XYZ.wav
 	node.play_requested.connect(play_sound)
 	%SampleContainer.add_child(node)
 
@@ -80,3 +81,8 @@ func play_sound(audioStream: AudioStream):
 	var player: AudioStreamPlayer = $AudioStreamPlayer
 	player.stream = audioStream
 	player.play()
+
+
+func on_export():
+	var res: MFCCExportResource
+	print("a")

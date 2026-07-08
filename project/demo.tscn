@@ -8,6 +8,10 @@
 [sub_resource type="LabelSettings" id="LabelSettings_m0rpm"]
 font_size = 24
 
+[sub_resource type="ButtonGroup" id="ButtonGroup_6bw2v"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_c6xj6"]
+
 [node name="Demo" type="Control" unique_id=1864649888]
 layout_mode = 3
 anchors_preset = 15
@@ -44,6 +48,51 @@ layout_mode = 2
 default_label_text = "Compare sample"
 confirm_button_texture = ExtResource("3_m0rpm")
 
+[node name="HBoxContainer" type="HBoxContainer" parent="CompareContainer" unique_id=298105048]
+layout_mode = 2
+alignment = 1
+
+[node name="MatchingModeSelection" type="VBoxContainer" parent="CompareContainer/HBoxContainer" unique_id=404577703]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="CompareContainer/HBoxContainer/MatchingModeSelection" unique_id=854314340]
+layout_mode = 2
+text = "Matching mode"
+
+[node name="Average" type="CheckButton" parent="CompareContainer/HBoxContainer/MatchingModeSelection" unique_id=977567832]
+layout_mode = 2
+button_pressed = true
+button_group = SubResource("ButtonGroup_6bw2v")
+text = "Average"
+
+[node name="BestMatch" type="CheckButton" parent="CompareContainer/HBoxContainer/MatchingModeSelection" unique_id=1720756434]
+layout_mode = 2
+button_group = SubResource("ButtonGroup_6bw2v")
+text = "Best match"
+
+[node name="VSeparator" type="VSeparator" parent="CompareContainer/HBoxContainer" unique_id=1818810131]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="DistanceModeSelection" type="VBoxContainer" parent="CompareContainer/HBoxContainer" unique_id=465543404]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="CompareContainer/HBoxContainer/DistanceModeSelection" unique_id=24457396]
+layout_mode = 2
+text = "Distance mode"
+
+[node name="Euclidian" type="CheckButton" parent="CompareContainer/HBoxContainer/DistanceModeSelection" unique_id=112031064]
+layout_mode = 2
+button_pressed = true
+button_group = SubResource("ButtonGroup_c6xj6")
+text = "Euclidian
+"
+
+[node name="Cosine" type="CheckButton" parent="CompareContainer/HBoxContainer/DistanceModeSelection" unique_id=415498450]
+layout_mode = 2
+button_group = SubResource("ButtonGroup_c6xj6")
+text = "Cosine"
+
 [node name="DistanceLabel" type="Label" parent="CompareContainer" unique_id=748236992]
 layout_mode = 2
 text = "AVERAGE DISTANCE:
@@ -52,3 +101,7 @@ MAXIMAL DISTANCE:"
 horizontal_alignment = 1
 
 [connection signal="recording_confirmed" from="CompareContainer/Recorder" to="." method="_on_compare_request"]
+[connection signal="pressed" from="CompareContainer/HBoxContainer/MatchingModeSelection/Average" to="." method="set_matching_mode" binds= [0]]
+[connection signal="pressed" from="CompareContainer/HBoxContainer/MatchingModeSelection/BestMatch" to="." method="set_matching_mode" binds= [1]]
+[connection signal="pressed" from="CompareContainer/HBoxContainer/DistanceModeSelection/Euclidian" to="." method="set_distance_metric" binds= [0]]
+[connection signal="pressed" from="CompareContainer/HBoxContainer/DistanceModeSelection/Cosine" to="." method="set_distance_metric" binds= [1]]

@@ -21,3 +21,7 @@ buses/default_bus_layout="uid://b5arum6486epg"
 general/ios/session_category=2
 general/ios/mix_with_others=true
 driver/enable_input=true
+
+[display]
+
+window/stretch/mode="canvas_items"

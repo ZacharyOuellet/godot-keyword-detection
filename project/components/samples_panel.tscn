@@ -72,6 +72,13 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
+[node name="Export" type="Button" parent="." unique_id=637316719]
+layout_mode = 2
+size_flags_vertical = 4
+text = "Export"
+icon = ExtResource("2_gprr1")
+icon_alignment = 2
+
 [node name="FileDialog" type="FileDialog" parent="." unique_id=1161564479]
 oversampling_override = 1.0
 title = "Open File(s)"

@@ -5,9 +5,21 @@
 [ext_resource type="Texture2D" uid="uid://bxy8e51txjf1u" path="res://assets/GuiClose.svg" id="3_l0ftm"]
 
 [node name="SamplePath" type="HBoxContainer" unique_id=1961964032]
+offset_right = 290.0
+offset_bottom = 23.0
 script = ExtResource("1_85536")
 
-[node name="Label" type="Label" parent="." unique_id=1409575265]
+[node name="Label" type="TextEdit" parent="." unique_id=343376169]
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+placeholder_text = "Label"
+context_menu_enabled = false
+emoji_menu_enabled = false
+wrap_mode = 1
+autowrap_mode = 1
+tab_input_mode = false
+
+[node name="Path" type="Label" parent="." unique_id=1409575265]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "PATH"

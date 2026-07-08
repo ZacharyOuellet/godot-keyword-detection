@@ -1,13 +1,14 @@
 extends Control
 
-func _on_compare_request(audioStream: AudioStreamWAV):
-	var mfcc := MFCCProcessor.new()
-	var matcher := DTWMatcher.new()
-	for templatePath: String in $SamplesPanel.get_all_file_paths():
-		matcher.add_template(templatePath.split("/")[-1], mfcc.compute(_wav_to_pcm(AudioStreamWAV.load_from_file(templatePath))))
+var _mfcc := MFCCProcessor.new()
+var _matcher := DTWMatcher.new()
 
-	var arr = mfcc.compute(_wav_to_pcm(audioStream))
-	_display_result(matcher.classify_with_every_score(arr))
+func _on_compare_request(audioStream: AudioStreamWAV):
+	for template: Dictionary in $SamplesPanel.get_all_file_paths_and_labels():
+		_matcher.add_template(template["label"], _mfcc.compute(_wav_to_pcm(AudioStreamWAV.load_from_file(template["path"]))))
+
+	var arr = _mfcc.compute(_wav_to_pcm(audioStream))
+	_display_result(_matcher.classify_with_every_score(arr))
 
 
 func _wav_to_pcm(stream: AudioStreamWAV) -> PackedFloat32Array:
@@ -52,3 +53,9 @@ func _sort_dict(dict: Dictionary) -> void:
 	dict.clear()
 	for p in pairs:
 		dict[p[0]] = p[1]
+
+func set_matching_mode(classify_method: DTWMatcher.ClassifyMethod):
+	_matcher.classify_method = classify_method
+
+func set_distance_metric(distance_metric: DTWMatcher.DistanceMetric):
+	_matcher.distance_metric = distance_metric

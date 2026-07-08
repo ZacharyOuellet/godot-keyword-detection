@@ -50,3 +50,6 @@ compile_commands.json
 # Cmake
 cmake-build*
 CMakeUserPresets.json
+
+
+project/ignored_assets/

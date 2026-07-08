@@ -48,7 +48,7 @@ public:
     // --- Main API ---
     // Input : PackedFloat32Array of mono PCM samples in [-1, 1]
     // Output: Array of PackedFloat32Array  (one entry per frame, length = num_coeffs)
-    TypedArray<PackedFloat32Array> compute(const PackedFloat32Array &p_samples);
+    TypedArray<PackedFloat32Array> compute(const PackedFloat32Array& p_samples);
 
 protected:
     static void _bind_methods();
@@ -56,19 +56,19 @@ protected:
 private:
     // DSP helpers
     void  _build_mel_filterbank();
-    void  _apply_hann_window(std::vector<float> &frame) const;
-    void  _fft(std::vector<float> &real, std::vector<float> &imag) const;
-    void  _power_spectrum(const std::vector<float> &real,
-                          const std::vector<float> &imag,
-                          std::vector<float>       &power) const;
-    std::vector<float> _apply_mel_filterbank(const std::vector<float> &power) const;
-    std::vector<float> _dct(const std::vector<float> &mel_energies) const;
+    void  _apply_hann_window(std::vector<float>& frame) const;
+    void  _fft(std::vector<float>& real, std::vector<float>& imag) const;
+    void  _power_spectrum(const std::vector<float>& real,
+        const std::vector<float>& imag,
+        std::vector<float>& power) const;
+    std::vector<float> _apply_mel_filterbank(const std::vector<float>& power) const;
+    std::vector<float> _dct(const std::vector<float>& mel_energies) const;
 
     // Parameters
-    int _sample_rate   = 22050;
-    int _num_coeffs    = 13;
-    int _frame_length  = 512;
-    int _hop_length    = 256;
+    int _sample_rate = 22050;
+    int _num_coeffs = 13;
+    int _frame_length = 512;
+    int _hop_length = 256;
     int _num_mel_bands = 40;
 
     // Pre-computed filterbank  [_num_mel_bands][_frame_length/2 + 1]
