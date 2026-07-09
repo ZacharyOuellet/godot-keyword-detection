@@ -5,6 +5,7 @@
 #include <godot_cpp/variant/typed_array.hpp>
 
 #include <vector>
+#include <complex>
 
 using namespace godot;
 
@@ -56,13 +57,8 @@ protected:
 private:
     // DSP helpers
     void  _build_mel_filterbank();
-    void  _apply_hann_window(std::vector<float>& frame) const;
-    void  _fft(std::vector<float>& real, std::vector<float>& imag) const;
-    void  _power_spectrum(const std::vector<float>& real,
-        const std::vector<float>& imag,
-        std::vector<float>& power) const;
+    void _power_spectrum(const std::vector<std::complex<float>>& fft_values, std::vector<float>& power) const;
     std::vector<float> _apply_mel_filterbank(const std::vector<float>& power) const;
-    std::vector<float> _dct(const std::vector<float>& mel_energies) const;
 
     // Parameters
     int _sample_rate = 22050;
