@@ -83,13 +83,13 @@ scons target=template_debug
 scons target=template_release
 ```
 
-Binaries are written to `addons/mfcc_dtw/bin/`.
+Binaries are written to `addons/godot_keyword_detection/bin/`.
 
 ---
 
 ## Installation
 
-Copy the entire `addons/mfcc_dtw/` folder into your project's `addons/` directory,
+Copy the entire `addons/godot_keyword_detection/` folder into your project's `addons/` directory,
 then enable **MFCC-DTW** in **Project → Project Settings → Plugins**.
 
 ---

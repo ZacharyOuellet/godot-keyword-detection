@@ -5,7 +5,7 @@ import sys
 from methods import print_error
 
 
-libname = "mfcc_dtw"
+libname = "godot_keyword_detection"
 projectdir = "project"
 
 localEnv = Environment(tools=["default"], PLATFORM="")

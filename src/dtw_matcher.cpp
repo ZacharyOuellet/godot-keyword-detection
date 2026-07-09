@@ -122,7 +122,12 @@ float DTWMatcher::_frame_distance(const PackedFloat32Array &a,
 }
 
 float DTWMatcher::_euclidean(const PackedFloat32Array &a,
-    const PackedFloat32Array& b) const {
+    const PackedFloat32Array& b) const
+{
+    if (a.size() != b.size()) {
+        UtilityFunctions::push_warning("DTWMatcher: frame size mismatch: " + String::num_int64(a.size()) + " vs " + String::num_int64(b.size()));
+    }
+
     const int len = std::min(a.size(), b.size());
     float sum = 0.0f;
     for (int i = 0; i < len; ++i) {
