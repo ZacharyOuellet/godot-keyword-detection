@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="PNCCProcessor" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="compute">
+			<return type="PackedFloat32Array[]" />
+			<param index="0" name="samples" type="PackedFloat32Array" />
+			<description>
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="frame_length" type="int" setter="set_frame_length" getter="get_frame_length" default="512">
+		</member>
+		<member name="hop_length" type="int" setter="set_hop_length" getter="get_hop_length" default="256">
+		</member>
+		<member name="medium_time_frames" type="int" setter="set_medium_time_frames" getter="get_medium_time_frames" default="2">
+		</member>
+		<member name="num_coeffs" type="int" setter="set_num_coeffs" getter="get_num_coeffs" default="13">
+		</member>
+		<member name="num_gamma_bands" type="int" setter="set_num_gamma_bands" getter="get_num_gamma_bands" default="40">
+		</member>
+		<member name="power_law_exponent" type="float" setter="set_power_law_exponent" getter="get_power_law_exponent" default="0.06666667">
+		</member>
+		<member name="sample_rate" type="int" setter="set_sample_rate" getter="get_sample_rate" default="16000">
+		</member>
+	</members>
+</class>

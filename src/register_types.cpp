@@ -1,6 +1,7 @@
 #include "register_types.h"
 
 #include "mfcc_processor.h"
+#include "pncc_processor.h"
 #include "dtw_matcher.h"
 
 #include <gdextension_interface.h>
@@ -14,6 +15,7 @@ void initialize_godot_keyword_detection_types(ModuleInitializationLevel p_level)
         return;
     }
     ClassDB::register_class<MFCCProcessor>();
+    ClassDB::register_class<PNCCProcessor>();
     ClassDB::register_class<DTWMatcher>();
 }
 

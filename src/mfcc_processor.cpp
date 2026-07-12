@@ -90,7 +90,7 @@ TypedArray<PackedFloat32Array> MFCCProcessor::compute(const PackedFloat32Array& 
         Utils::apply_fft(fft_values);
 
         // 4. Power spectrum
-        _power_spectrum(fft_values, power);
+        Utils::power_spectrum(fft_values, power);
 
         // 5. Mel filterbank
         std::vector<float> mel_energies = _apply_mel_filterbank(power);
@@ -160,15 +160,6 @@ void MFCCProcessor::_build_mel_filterbank() {
                 _mel_filterbank[m][k] = float(right - k) / float(right - center);
             }
         }
-    }
-}
-
-void MFCCProcessor::_power_spectrum(const std::vector<std::complex<float>>& fft_values,
-    std::vector<float>& power) const {
-    const int bins = static_cast<int>(power.size());
-    for (int k = 0; k < bins; ++k) {
-        const auto& val = fft_values[k];
-        power[k] = val.real() * val.real() + val.imag() * val.imag();
     }
 }
 
