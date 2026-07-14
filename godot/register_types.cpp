@@ -1,8 +1,8 @@
 #include "register_types.h"
 
-#include "mfcc_processor.h"
-#include "pncc_processor.h"
-#include "dtw_matcher.h"
+#include "keyword_detection/mfcc_processor.h"
+#include "keyword_detection/pncc_processor.h"
+#include "keyword_detection/dtw_matcher.h"
 
 #include <gdextension_interface.h>
 #include <godot_cpp/core/defs.hpp>

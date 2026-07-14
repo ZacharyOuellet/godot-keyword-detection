@@ -1,11 +1,11 @@
-#include "pncc_processor.h"
+#include "keyword_detection/pncc_processor.h"
+#include "keyword_detection/utils.h"
 
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
 #include <cmath>
 #include <algorithm>
-#include "utils.h"
 
 using namespace godot;
 

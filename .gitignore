@@ -43,6 +43,7 @@ compile_commands.json
 .vscode/*
 !.vscode/extensions.json
 .DS_Store
+project/.vscode/
 
 # Jetbrains
 .idea/
