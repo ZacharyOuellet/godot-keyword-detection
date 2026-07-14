@@ -10,25 +10,25 @@
 		<method name="add_template">
 			<return type="void" />
 			<param index="0" name="label" type="String" />
-			<param index="1" name="mfcc" type="PackedFloat32Array[]" />
+			<param index="1" name="features" type="PackedFloat32Array[]" />
 			<description>
 			</description>
 		</method>
 		<method name="classify" qualifiers="const">
 			<return type="String" />
-			<param index="0" name="mfcc" type="PackedFloat32Array[]" />
+			<param index="0" name="features" type="PackedFloat32Array[]" />
 			<description>
 			</description>
 		</method>
 		<method name="classify_with_best_score" qualifiers="const">
 			<return type="Dictionary" />
-			<param index="0" name="mfcc" type="PackedFloat32Array[]" />
+			<param index="0" name="features" type="PackedFloat32Array[]" />
 			<description>
 			</description>
 		</method>
 		<method name="classify_with_every_score" qualifiers="const">
 			<return type="Dictionary" />
-			<param index="0" name="mfcc" type="PackedFloat32Array[]" />
+			<param index="0" name="features" type="PackedFloat32Array[]" />
 			<description>
 			</description>
 		</method>
