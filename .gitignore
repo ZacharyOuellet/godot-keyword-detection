@@ -54,3 +54,19 @@ CMakeUserPresets.json
 
 
 project/ignored_assets/
+
+
+#python
+*.pyd
+*.so
+*.egg-info/
+build/
+dist/
+
+# Optional: generated Pylance stubs (see note above)
+keyword_detection.pyi
+
+# Python
+__pycache__/
+*.pyc
+.venv/
