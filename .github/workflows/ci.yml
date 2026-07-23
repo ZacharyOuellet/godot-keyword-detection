@@ -68,6 +68,29 @@ jobs:
           ln -sf /usr/bin/aarch64-linux-gnu-strip "$HOME/.local/cross-shims/strip"
           echo "$HOME/.local/cross-shims" >> "$GITHUB_PATH"
 
+
+      - name: Setup Python (Windows PATH fix)
+        if: ${{ matrix.target.platform == 'windows' }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+
+      - name: Debug Windows Python
+        if: ${{ matrix.target.platform == 'windows' }}
+        shell: pwsh
+        run: |
+          Write-Host "PATH:"
+          $env:PATH -split ';' | ForEach-Object { Write-Host $_ }
+
+          Write-Host "`nPython commands:"
+          Get-Command python -All -ErrorAction SilentlyContinue
+
+          Write-Host "`nPython:"
+          python --version
+
+          Write-Host "`nPython executable:"
+          python -c "import sys; print(sys.executable)"
+
       # Setup dependencies
       - name: Setup godot-cpp
         uses: ./godot-cpp/.github/actions/setup-godot-cpp
