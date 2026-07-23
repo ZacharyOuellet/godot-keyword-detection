@@ -1,0 +1,9 @@
+results/
+
+
+#python
+*.pyd
+*.so
+*.egg-info/
+
+keyword_detection.pyi

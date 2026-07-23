@@ -26,9 +26,9 @@ public:
     void set_distance_metric(int p_metric);
     int get_distance_metric() const;
 
-    // --- Sakoe-Chiba band width (0 = no constraint) ---
-    void set_band_width(int p_width);
-    int get_band_width() const;
+    // --- Sakoe-Chiba band width (1 = no constraint) ---
+    void set_band_width(float);
+    float get_band_width() const;
 
     void set_classify_method(int p_method);
     int get_classify_method() const;

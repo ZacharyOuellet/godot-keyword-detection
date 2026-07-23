@@ -66,14 +66,14 @@ void DTWMatcher::_bind_methods()
     ClassDB::bind_method(D_METHOD("clear_templates"), &DTWMatcher::clear_templates);
 
     ADD_PROPERTY(PropertyInfo(Variant::INT, "distance_metric"), "set_distance_metric", "get_distance_metric");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "band_width"), "set_band_width", "get_band_width");
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "band_width"), "set_band_width", "get_band_width");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "classify_method"), "set_classify_method", "get_classify_method");
 }
 
 void DTWMatcher::set_distance_metric(int metric) { core.set_distance_metric(metric); }
 int DTWMatcher::get_distance_metric() const { return core.get_distance_metric(); }
-void DTWMatcher::set_band_width(int width) { core.set_band_width(width); }
-int DTWMatcher::get_band_width() const { return core.get_band_width(); }
+void DTWMatcher::set_band_width(float width) { core.set_band_width(width); }
+float DTWMatcher::get_band_width() const { return core.get_band_width(); }
 void DTWMatcher::set_classify_method(int method) { core.set_classify_method(method); }
 int DTWMatcher::get_classify_method() const { return core.get_classify_method(); }
 

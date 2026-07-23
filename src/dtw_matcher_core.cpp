@@ -12,8 +12,8 @@ DTWMatcherCore::~DTWMatcherCore() {}
 
 void DTWMatcherCore::set_distance_metric(int metric) { _distance_metric = metric; }
 int DTWMatcherCore::get_distance_metric() const { return _distance_metric; }
-void DTWMatcherCore::set_band_width(int width) { _band_width = width; }
-int DTWMatcherCore::get_band_width() const { return _band_width; }
+void DTWMatcherCore::set_band_width(float width) { _band_width = width; }
+float DTWMatcherCore::get_band_width() const { return _band_width; }
 void DTWMatcherCore::set_classify_method(int method) { _classify_method = method; }
 int DTWMatcherCore::get_classify_method() const { return _classify_method; }
 
@@ -34,13 +34,20 @@ float DTWMatcherCore::compute(const FeatureSequence& seq_a,
 
     auto idx = [&](int i, int j) -> float& { return cost[i * M + j]; };
 
-    for (int i = 0; i < N; ++i) {
-        for (int j = 0; j < M; ++j) {
-            // Sakoe-Chiba band
-            if (_band_width > 0 && std::abs(i - j) > _band_width) {
-                continue;
-            }
+    const int max_len = std::max(N, M);
+    const int band = static_cast<int>(std::ceil(_band_width * max_len));
 
+    for (int i = 0; i < N; ++i) {
+        // Expected position on the diagonal in sequence B
+        const int diagonal = (N > 1)
+            ? static_cast<int>(std::round(
+                static_cast<float>(i) * (M - 1) / (N - 1)))
+            : 0;
+
+        const int j_begin = std::max(0, diagonal - band);
+        const int j_end = std::min(M - 1, diagonal + band);
+
+        for (int j = j_begin; j <= j_end; ++j) {
             const std::vector<float>& fa = seq_a[i];
             const std::vector<float>& fb = seq_b[j];
             float d = _frame_distance(fa, fb);
@@ -66,8 +73,13 @@ float DTWMatcherCore::compute(const FeatureSequence& seq_a,
     }
 
     float raw = cost[(N - 1) * M + (M - 1)];
+
+    if (raw == INF) {
+        return INF;
+    }
+
     // Normalize by path length so distance is comparable across sequence lengths
-    return raw / float(N + M);
+    return raw / static_cast<float>(N + M);
 }
 
 // ---- Frame-level distance --------------------------------------------------

@@ -30,9 +30,9 @@ public:
     void set_distance_metric(int metric);
     int  get_distance_metric() const;
 
-    // --- Sakoe-Chiba band width (0 = no constraint) ---
-    void set_band_width(int width);
-    int  get_band_width() const;
+    // --- Sakoe-Chiba band width (1 = no constraint) ---
+    void set_band_width(float width);
+    float  get_band_width() const;
 
     void set_classify_method(int method);
     int  get_classify_method() const;
@@ -66,7 +66,7 @@ private:
 
     int _distance_metric = EUCLIDEAN;
     int _classify_method = AVERAGE_DISTANCE;
-    int _band_width = 0; // 0 = full matrix (no Sakoe-Chiba constraint)
+    float _band_width = 1; // 0-1 relative Sakoe-Chiba band. 1 is full matrix, 0 is perfect diagonal
 
 
     std::map<std::string, std::vector<std::vector<std::vector<float>>>> _templates;
