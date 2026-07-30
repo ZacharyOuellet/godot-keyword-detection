@@ -1,4 +1,5 @@
 #include "mfcc_processor.h"
+#include "types_transformation.h"
 
 using namespace godot;
 
@@ -17,7 +18,7 @@ void MFCCProcessor::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_hop_length"), &MFCCProcessor::get_hop_length);
     ClassDB::bind_method(D_METHOD("set_num_mel_bands", "bands"), &MFCCProcessor::set_num_mel_bands);
     ClassDB::bind_method(D_METHOD("get_num_mel_bands"), &MFCCProcessor::get_num_mel_bands);
-    ClassDB::bind_method(D_METHOD("compute", "samples"), &MFCCProcessor::compute);
+    ClassDB::bind_method(D_METHOD("compute", "sample"), &MFCCProcessor::compute);
 
     ADD_PROPERTY(PropertyInfo(Variant::INT, "sample_rate"), "set_sample_rate", "get_sample_rate");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "num_coeffs"), "set_num_coeffs", "get_num_coeffs");
@@ -40,22 +41,10 @@ int  MFCCProcessor::get_num_mel_bands() const { return core.get_num_mel_bands();
 
 
 godot::TypedArray<godot::PackedFloat32Array>
-MFCCProcessor::compute(const godot::PackedFloat32Array& samples)
+MFCCProcessor::compute(const godot::PackedFloat32Array& sample)
 {
-    std::vector<float> input;
-    input.resize(samples.size());
-    for (int i = 0; i < samples.size(); i++)
-        input[i] = samples[i];
 
+    std::vector<float> input = packedArrayToVector(sample);
     auto features = core.compute(input);
-    godot::TypedArray<godot::PackedFloat32Array> result;
-    for (const auto& frame : features)
-    {
-        godot::PackedFloat32Array godot_frame;
-        godot_frame.resize(frame.size());
-        for (int i = 0; i < frame.size(); i++)
-            godot_frame[i] = frame[i];
-        result.push_back(godot_frame);
-    }
-    return result;
+    return vectorVectorToArrayPackedArray(features);
 }

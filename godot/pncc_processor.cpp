@@ -1,44 +1,9 @@
 #include "pncc_processor.h"
 
 #include <godot_cpp/core/class_db.hpp>
+#include "types_transformation.h"
 
 using namespace godot;
-
-static std::vector<float> packedArrayToVector(
-    const PackedFloat32Array& array)
-{
-    std::vector<float> result;
-    result.resize(array.size());
-
-    for (int i = 0; i < array.size(); i++)
-    {
-        result[i] = array[i];
-    }
-
-    return result;
-}
-
-static TypedArray<PackedFloat32Array> pnccToGodotPncc(
-    const PNCC& sequence)
-{
-    TypedArray<PackedFloat32Array> result;
-
-    for (const auto& frame : sequence)
-    {
-        PackedFloat32Array packed;
-        packed.resize(frame.size());
-
-        for (int i = 0; i < frame.size(); i++)
-        {
-            packed[i] = frame[i];
-        }
-
-        result.push_back(packed);
-    }
-
-    return result;
-}
-
 
 PNCCProcessor::PNCCProcessor() {}
 PNCCProcessor::~PNCCProcessor() {}
@@ -89,11 +54,9 @@ int PNCCProcessor::get_medium_time_frames() const { return core.get_medium_time_
 TypedArray<PackedFloat32Array> PNCCProcessor::compute(
     const PackedFloat32Array& samples)
 {
-    std::vector<float> pcm =
-        packedArrayToVector(samples);
+    std::vector<float> pcm = packedArrayToVector(samples);
 
-    PNCC features =
-        core.compute(pcm);
+    PNCC features = core.compute(pcm);
 
-    return pnccToGodotPncc(features);
+    return vectorVectorToArrayPackedArray(features);
 }

@@ -1,5 +1,5 @@
 #include "dtw_matcher.h"
-
+#include "types_transformation.h"
 #include <godot_cpp/core/class_db.hpp>
 
 using namespace godot;
@@ -9,27 +9,6 @@ using namespace godot;
 // Helpers
 // ---------------------------------------------------------------------------
 
-static FeatureSequence to_feature_sequence(
-    const TypedArray<PackedFloat32Array>& array)
-{
-    FeatureSequence result;
-    result.reserve(array.size());
-    for (int i = 0; i < array.size(); i++)
-    {
-        PackedFloat32Array frame = array[i];
-
-        std::vector<float> values;
-        values.resize(frame.size());
-
-        for (int j = 0; j < frame.size(); j++)
-        {
-            values[j] = frame[j];
-        }
-
-        result.push_back(values);
-    }
-    return result;
-}
 
 
 static Dictionary result_to_dictionary(
@@ -79,8 +58,8 @@ int DTWMatcher::get_classify_method() const { return core.get_classify_method();
 
 float DTWMatcher::compute(const TypedArray<PackedFloat32Array>& seq_a, const TypedArray<PackedFloat32Array>& seq_b) const
 {
-    FeatureSequence a = to_feature_sequence(seq_a);
-    FeatureSequence b = to_feature_sequence(seq_b);
+    FeatureSequence a = arrayPackedArrayToVectorVector(seq_a);
+    FeatureSequence b = arrayPackedArrayToVectorVector(seq_b);
 
     return core.compute(a, b);
 }
@@ -89,7 +68,7 @@ void DTWMatcher::add_template(
     const String& label,
     const TypedArray<PackedFloat32Array>& mfcc)
 {
-    FeatureSequence features = to_feature_sequence(mfcc);
+    FeatureSequence features = arrayPackedArrayToVectorVector(mfcc);
     core.add_template(
         std::string(label.utf8().get_data()),
         features
@@ -103,21 +82,21 @@ void DTWMatcher::clear_templates()
 
 String DTWMatcher::classify(const TypedArray<PackedFloat32Array>& mfcc) const
 {
-    FeatureSequence features = to_feature_sequence(mfcc);
+    FeatureSequence features = arrayPackedArrayToVectorVector(mfcc);
     std::string result = core.classify(features);
     return String(result.c_str());
 }
 
 Dictionary DTWMatcher::classify_with_best_score(const TypedArray<PackedFloat32Array>& mfcc) const
 {
-    FeatureSequence features = to_feature_sequence(mfcc);
+    FeatureSequence features = arrayPackedArrayToVectorVector(mfcc);
     auto result = core.classify_with_best_score(features);
     return result_to_dictionary(result);
 }
 
 Dictionary DTWMatcher::classify_with_every_score(const TypedArray<PackedFloat32Array>& mfcc) const
 {
-    FeatureSequence features = to_feature_sequence(mfcc);
+    FeatureSequence features = arrayPackedArrayToVectorVector(mfcc);
     auto results = core.classify_with_every_score(features);
     Dictionary dict;
     for (const auto& result : results)
