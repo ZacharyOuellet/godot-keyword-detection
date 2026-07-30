@@ -7,3 +7,7 @@ results/
 *.egg-info/
 
 keyword_detection.pyi
+
+*.pt
+*.env
+*.csv
