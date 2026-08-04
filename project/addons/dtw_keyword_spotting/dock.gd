@@ -1,6 +1,7 @@
+@tool
 extends Control
 
-@export var sample_path_scene: PackedScene = preload("res://components/sample_path.tscn")
+@export var sample_path_scene: PackedScene = preload("res://addons/dtw_keyword_spotting/editor/components/sample_path.tscn")
 
 var _stream_being_saved: AudioStreamWAV = null
 
@@ -54,13 +55,10 @@ func _on_cancel_save():
 	_stream_being_saved = null
 
 func add_to_list(filepath: String):
-	for node in %SampleContainer.get_children():
+	for node in %LabelContainer.get_children():
 		if "text" in node and node.path == filepath: return # No duplicates
 	var node := sample_path_scene.instantiate()
-	node.path = filepath
-	node.label = filepath.split("/")[-1].split(".")[0] # first word before .XYZ.wav
-	node.play_requested.connect(play_sound)
-	%SampleContainer.add_child(node)
+	%LabelContainer.add_child(node)
 
 func _await_one_of_signals(signalsArray: Array[Signal]):
 	var wrapper: RefCounted = RefCounted.new()
@@ -77,12 +75,6 @@ func _await_one_of_signals(signalsArray: Array[Signal]):
 	for awaitedSignal in signalsArray:
 		awaitedSignal.disconnect(handler)
 
-func play_sound(audioStream: AudioStream):
-	var player: AudioStreamPlayer = $AudioStreamPlayer
-	player.stream = audioStream
-	player.play()
-
 
 func on_export():
-	var res: MFCCExportResource
 	print("a")

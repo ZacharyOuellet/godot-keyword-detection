@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://l3tctyis050i"]
 
-[ext_resource type="Script" uid="uid://1qecghivrrry" path="res://components/recorder.gd" id="2_4fe4l"]
+[ext_resource type="Script" uid="uid://dpgy2nkwib0bc" path="res://recorder.gd" id="2_4fe4l"]
 [ext_resource type="Texture2D" uid="uid://cswim7txakesa" path="res://assets/DebugSkipBreakpointsOff.svg" id="3_muxhn"]
 [ext_resource type="Texture2D" uid="uid://nhnhasxu0s0r" path="res://assets/TransitionImmediateAuto.svg" id="4_isgtb"]
 [ext_resource type="Texture2D" uid="uid://7c3gk0pknhkk" path="res://assets/Save.svg" id="5_8bwfh"]
@@ -26,7 +26,7 @@ bus = &"Record"
 
 [node name="Label" type="Label" parent="." unique_id=131339201]
 layout_mode = 2
-text = "LABEL TEXT PLACEHOLDER"
+text = "Record"
 horizontal_alignment = 1
 
 [node name="Buttons" type="HBoxContainer" parent="." unique_id=1877320818]
@@ -40,14 +40,17 @@ icon = ExtResource("3_muxhn")
 
 [node name="Play" type="Button" parent="Buttons" unique_id=383964012]
 layout_mode = 2
+disabled = true
 icon = ExtResource("4_isgtb")
 
 [node name="Save" type="Button" parent="Buttons" unique_id=1779961133]
 layout_mode = 2
+disabled = true
 icon = ExtResource("5_8bwfh")
 
 [node name="Cancel" type="Button" parent="Buttons" unique_id=793304400]
 layout_mode = 2
+disabled = true
 icon = ExtResource("6_p5kqj")
 
 [connection signal="pressed" from="Buttons/Record" to="." method="_on_record_button_pressed"]

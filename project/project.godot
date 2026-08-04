@@ -25,3 +25,7 @@ driver/enable_input=true
 [display]
 
 window/stretch/mode="canvas_items"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/dtw_keyword_spotting/plugin.cfg")

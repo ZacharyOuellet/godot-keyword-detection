@@ -1,3 +1,4 @@
+@tool
 extends Control
 
 signal recording_confirmed(audioStream: AudioStreamWAV)

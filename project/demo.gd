@@ -1,14 +1,35 @@
 extends Control
 
+enum FeatureExtractor {
+	MFCC,
+	PNCC
+}
+
+
 var _mfcc := MFCCProcessor.new()
+var _pncc := PNCCProcessor.new()
 var _matcher := DTWMatcher.new()
+
+var _extractor: FeatureExtractor = FeatureExtractor.MFCC
 
 func _on_compare_request(audioStream: AudioStreamWAV):
 	for template: Dictionary in $SamplesPanel.get_all_file_paths_and_labels():
-		_matcher.add_template(template["label"], _mfcc.compute(_wav_to_pcm(AudioStreamWAV.load_from_file(template["path"]))))
+		_matcher.add_template(template["label"], _extract_audio_feature(AudioStreamWAV.load_from_file(template["path"])))
 
-	var arr = _mfcc.compute(_wav_to_pcm(audioStream))
+	var arr := _extract_audio_feature(audioStream)
+
 	_display_result(_matcher.classify_with_every_score(arr))
+
+
+func _extract_audio_feature(audioStream: AudioStreamWAV) -> Array[PackedFloat32Array]:
+	match (_extractor):
+		FeatureExtractor.MFCC:
+			return _mfcc.compute(_wav_to_pcm(audioStream))
+		FeatureExtractor.PNCC:
+			return _pncc.compute(_wav_to_pcm(audioStream))
+		_:
+			push_warning("Invalid feature extractor : " + str(_extractor) + " . Reverting to pncc")
+			return _pncc.compute(_wav_to_pcm(audioStream))
 
 
 func _wav_to_pcm(stream: AudioStreamWAV) -> PackedFloat32Array:
@@ -59,3 +80,6 @@ func set_matching_mode(classify_method: DTWMatcher.ClassifyMethod):
 
 func set_distance_metric(distance_metric: DTWMatcher.DistanceMetric):
 	_matcher.distance_metric = distance_metric
+
+func set_feature_extractor(feature_extractor: FeatureExtractor):
+	_extractor = feature_extractor
