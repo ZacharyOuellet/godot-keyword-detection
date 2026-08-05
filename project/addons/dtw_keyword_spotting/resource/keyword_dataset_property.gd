@@ -10,6 +10,7 @@ var _updating := false # guards against re-entrant rebuilds while we're the one 
 
 func _init() -> void:
 	_rows_container = VBoxContainer.new()
+	_rows_container.add_theme_constant_override("separation", 0)
 	add_child(_rows_container)
 	add_focusable(_rows_container)
 	set_bottom_editor(_rows_container)
@@ -26,9 +27,12 @@ func _rebuild() -> void:
 		c.queue_free()
 
 	var dict: Dictionary = _get_dict()
+	var labels := dict.keys()
 
-	for label in dict.keys():
+	for idx in labels.size():
+		var label = labels[idx]
 		_rows_container.add_child(_build_label_section(label, dict[label]))
+		_rows_container.add_child(_build_separator())
 
 	var add_label_btn := Button.new()
 	add_label_btn.text = "+ Add Keyword Label"
@@ -46,71 +50,86 @@ func _get_dict() -> Dictionary:
 # ---------------------------------------------------------------------------
 
 func _build_label_section(label: String, wavs: Array) -> Control:
-	var panel := PanelContainer.new()
-	var vbox := VBoxContainer.new()
-	panel.add_child(vbox)
+	var row := HBoxContainer.new()
 
-	var header := HBoxContainer.new()
-	header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var remove_label_btn := Button.new()
+	remove_label_btn.icon = get_theme_icon("Remove", "EditorIcons")
+	remove_label_btn.size_flags_horizontal = Control.SIZE_FILL
+	remove_label_btn.tooltip_text = "Remove this label and all its wavs"
+	remove_label_btn.pressed.connect(_on_remove_label.bind(label))
+	row.add_child(remove_label_btn)
+
+
+	var left := VBoxContainer.new()
+	left.custom_minimum_size.x = 250
+	left.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(left)
 
 	var label_edit := LineEdit.new()
 	label_edit.text = label
-	label_edit.custom_minimum_size.x = 140
-	label_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label_edit.text_submitted.connect(func(new_text): _on_label_renamed(label, new_text, label_edit))
-	header.add_child(label_edit)
+	left.add_child(label_edit)
 
 	var count_label := Label.new()
 	count_label.text = "%d wav(s)" % wavs.size()
 	count_label.modulate.a = 0.6
-	header.add_child(count_label)
+	count_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	left.add_child(count_label)
 
-	var remove_label_btn := Button.new()
-	remove_label_btn.text = "Remove Label"
-	remove_label_btn.pressed.connect(_on_remove_label.bind(label))
-	header.add_child(remove_label_btn)
 
-	vbox.add_child(header)
+	row.add_child(_build_separator(true))
+
+	# --- Right: one row per wav, stacked vertically ---
+	var wav_column := _WavColumnTarget.new()
+	wav_column.on_files_dropped = func(paths: Array): _on_wavs_dropped(label, paths)
+	wav_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	wav_column.add_theme_constant_override("separation", 2)
+	row.add_child(wav_column)
 
 	for i in wavs.size():
-		vbox.add_child(_build_wav_row(label, i, wavs[i]))
+		wav_column.add_child(_build_wav_row(label, i, wavs[i]))
 
 	var add_wav_btn := Button.new()
 	add_wav_btn.text = "+ Add WAV slot"
+	add_wav_btn.tooltip_text = "Or drop .wav files anywhere in this column"
 	add_wav_btn.pressed.connect(_on_add_wav.bind(label))
-	vbox.add_child(add_wav_btn)
+	wav_column.add_child(add_wav_btn)
 
-	# Accept drag-and-drop of .wav resources straight from the FileSystem dock
-	# onto this section to append them.
-	var drop_target := _WavDropTarget.new()
-	drop_target.on_files_dropped = func(paths: Array): _on_wavs_dropped(label, paths)
-	drop_target.custom_minimum_size.y = 18
-	var drop_hint := Label.new()
-	drop_hint.text = "(drop .wav files here)"
-	drop_hint.modulate.a = 0.4
-	drop_target.add_child(drop_hint)
-	vbox.add_child(drop_target)
-
-	return panel
-
+	return row
 
 func _build_wav_row(label: String, index: int, stream: AudioStreamWAV) -> Control:
-	var row := HBoxContainer.new()
+	var chip := HBoxContainer.new()
+	chip.add_theme_constant_override("separation", 4)
+
+	var name_label := Label.new()
+	name_label.text = stream.resource_path.get_file() if stream else "(none)"
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	chip.add_child(name_label) # alongside the picker, before the remove button
 
 	var picker := EditorResourcePicker.new()
 	picker.base_type = "AudioStreamWAV"
 	picker.edited_resource = stream
 	picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	picker.resource_changed.connect(_on_wav_changed.bind(label, index))
-	row.add_child(picker)
+	chip.add_child(picker)
 
 	var remove_btn := Button.new()
-	remove_btn.text = "x"
+	remove_btn.icon = get_theme_icon("Remove", "EditorIcons")
 	remove_btn.pressed.connect(_on_remove_wav.bind(label, index))
-	row.add_child(remove_btn)
+	chip.add_child(remove_btn)
 
-	return row
+	return chip
 
+
+func _build_separator(is_vertical:bool = false):
+	var sep := VSeparator.new() if is_vertical else HSeparator.new()
+	var sb := StyleBoxLine.new()
+	sb.color = get_theme_color("font_color", "Label")
+	sb.color.a = 0.3
+	sb.thickness = 3
+	sb.vertical = is_vertical
+	sep.add_theme_stylebox_override("separator", sb)
+	return sep
 
 # ---------------------------------------------------------------------------
 # Mutation handlers — each clones the dict, edits the clone, then commits it
@@ -192,10 +211,11 @@ func _on_wavs_dropped(label: String, paths: Array) -> void:
 
 
 # ---------------------------------------------------------------------------
-# Small helper control: a drop zone that accepts FileSystem dock drags
+# Small helper control: a VBoxContainer that stacks wav rows one per line,
+# and accepts FileSystem dock drags anywhere in the column.
 # ---------------------------------------------------------------------------
 
-class _WavDropTarget extends PanelContainer:
+class _WavColumnTarget extends VBoxContainer:
 	var on_files_dropped: Callable
 
 	func _can_drop_data(_pos: Vector2, data: Variant) -> bool:
