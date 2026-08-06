@@ -34,6 +34,15 @@ namespace godot {
         void set_medium_time_frames(int frames);
         int get_medium_time_frames() const;
 
+        void set_lambda_a(float lambda_a);
+        float get_lambda_a() const;
+
+        void set_lambda_b(float lambda_b);
+        float get_lambda_b() const;
+
+        void set_lambda_t(float lambda_t);
+        float get_lambda_t() const;
+
         TypedArray<PackedFloat32Array> compute(
             const PackedFloat32Array& samples
         );

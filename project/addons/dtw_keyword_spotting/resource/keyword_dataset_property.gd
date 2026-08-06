@@ -120,7 +120,6 @@ func _build_wav_row(label: String, index: int, stream: AudioStreamWAV) -> Contro
 
 	return chip
 
-
 func _build_separator(is_vertical:bool = false):
 	var sep := VSeparator.new() if is_vertical else HSeparator.new()
 	var sb := StyleBoxLine.new()

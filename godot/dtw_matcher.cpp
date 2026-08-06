@@ -66,12 +66,12 @@ float DTWMatcher::compute(const TypedArray<PackedFloat32Array>& seq_a, const Typ
 
 void DTWMatcher::add_template(
     const String& label,
-    const TypedArray<PackedFloat32Array>& mfcc)
+    const TypedArray<PackedFloat32Array>& features)
 {
-    FeatureSequence features = arrayPackedArrayToVectorVector(mfcc);
+    FeatureSequence cpp_features = arrayPackedArrayToVectorVector(features);
     core.add_template(
         std::string(label.utf8().get_data()),
-        features
+        cpp_features
     );
 }
 
@@ -80,24 +80,24 @@ void DTWMatcher::clear_templates()
     core.clear_templates();
 }
 
-String DTWMatcher::classify(const TypedArray<PackedFloat32Array>& mfcc) const
+String DTWMatcher::classify(const TypedArray<PackedFloat32Array>& features) const
 {
-    FeatureSequence features = arrayPackedArrayToVectorVector(mfcc);
-    std::string result = core.classify(features);
+    FeatureSequence cpp_features = arrayPackedArrayToVectorVector(features);
+    std::string result = core.classify(cpp_features);
     return String(result.c_str());
 }
 
-Dictionary DTWMatcher::classify_with_best_score(const TypedArray<PackedFloat32Array>& mfcc) const
+Dictionary DTWMatcher::classify_with_best_score(const TypedArray<PackedFloat32Array>& features) const
 {
-    FeatureSequence features = arrayPackedArrayToVectorVector(mfcc);
-    auto result = core.classify_with_best_score(features);
+    FeatureSequence cpp_features = arrayPackedArrayToVectorVector(features);
+    auto result = core.classify_with_best_score(cpp_features);
     return result_to_dictionary(result);
 }
 
-Dictionary DTWMatcher::classify_with_every_score(const TypedArray<PackedFloat32Array>& mfcc) const
+Dictionary DTWMatcher::classify_with_every_score(const TypedArray<PackedFloat32Array>& features) const
 {
-    FeatureSequence features = arrayPackedArrayToVectorVector(mfcc);
-    auto results = core.classify_with_every_score(features);
+    FeatureSequence cpp_features = arrayPackedArrayToVectorVector(features);
+    auto results = core.classify_with_every_score(cpp_features);
     Dictionary dict;
     for (const auto& result : results)
     {

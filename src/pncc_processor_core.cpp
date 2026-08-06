@@ -43,6 +43,12 @@ void PNCCProcessorCore::set_power_law_exponent(float exponent) { _power_law_expo
 float PNCCProcessorCore::get_power_law_exponent() const { return _power_law_exponent; }
 void PNCCProcessorCore::set_medium_time_frames(int frames) { _medium_time_frames = frames; }
 int PNCCProcessorCore::get_medium_time_frames() const { return _medium_time_frames; }
+void PNCCProcessorCore::set_lambda_a(float lambda_a) { _lambda_a = lambda_a; }
+float PNCCProcessorCore::get_lambda_a() const { return _lambda_a; }
+void PNCCProcessorCore::set_lambda_b(float lambda_b) { _lambda_b = lambda_b; }
+float PNCCProcessorCore::get_lambda_b() const { return _lambda_b; }
+void PNCCProcessorCore::set_lambda_t(float lambda_t) { _lambda_t = lambda_t; }
+float PNCCProcessorCore::get_lambda_t() const { return _lambda_t; }
 
 // ---------------------------------------------------------------------------
 // Compute

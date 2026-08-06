@@ -5,7 +5,7 @@ const KeywordDatasetProperty := preload("res://addons/dtw_keyword_spotting/resou
 
 
 func _can_handle(object: Object) -> bool:
-	return object is KeywordDataset
+	return object is KeywordMatcherSettings
 
 
 func _parse_property(
@@ -17,7 +17,7 @@ func _parse_property(
 	usage_flags: int,
 	wide: bool
 ) -> bool:
-	if name != "source_files":
+	if name != "keyword_dataset":
 		return false
 
 	var prop := KeywordDatasetProperty.new()

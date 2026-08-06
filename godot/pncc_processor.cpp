@@ -24,6 +24,12 @@ void PNCCProcessor::_bind_methods()
     ClassDB::bind_method(D_METHOD("get_power_law_exponent"), &PNCCProcessor::get_power_law_exponent);
     ClassDB::bind_method(D_METHOD("set_medium_time_frames", "frames"), &PNCCProcessor::set_medium_time_frames);
     ClassDB::bind_method(D_METHOD("get_medium_time_frames"), &PNCCProcessor::get_medium_time_frames);
+    ClassDB::bind_method(D_METHOD("set_lambda_a", "lambda_a"), &PNCCProcessor::set_lambda_a);
+    ClassDB::bind_method(D_METHOD("get_lambda_a"), &PNCCProcessor::get_lambda_a);
+    ClassDB::bind_method(D_METHOD("set_lambda_b", "lambda_b"), &PNCCProcessor::set_lambda_b);
+    ClassDB::bind_method(D_METHOD("get_lambda_b"), &PNCCProcessor::get_lambda_b);
+    ClassDB::bind_method(D_METHOD("set_lambda_t", "lambda_t"), &PNCCProcessor::set_lambda_t);
+    ClassDB::bind_method(D_METHOD("get_lambda_t"), &PNCCProcessor::get_lambda_t);
     ClassDB::bind_method(D_METHOD("compute", "samples"), &PNCCProcessor::compute);
 
     ADD_PROPERTY(PropertyInfo(Variant::INT, "sample_rate"), "set_sample_rate", "get_sample_rate");
@@ -33,6 +39,9 @@ void PNCCProcessor::_bind_methods()
     ADD_PROPERTY(PropertyInfo(Variant::INT, "num_gamma_bands"), "set_num_gamma_bands", "get_num_gamma_bands");
     ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "power_law_exponent"), "set_power_law_exponent", "get_power_law_exponent");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "medium_time_frames"), "set_medium_time_frames", "get_medium_time_frames");
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "lambda_a"), "set_lambda_a", "get_lambda_a");
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "lambda_b"), "set_lambda_b", "get_lambda_b");
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "lambda_t"), "set_lambda_t", "get_lambda_t");
 }
 
 void PNCCProcessor::set_sample_rate(int rate) { core.set_sample_rate(rate); }
@@ -49,6 +58,12 @@ void PNCCProcessor::set_power_law_exponent(float exponent) { core.set_power_law_
 float PNCCProcessor::get_power_law_exponent() const { return core.get_power_law_exponent(); }
 void PNCCProcessor::set_medium_time_frames(int frames) { core.set_medium_time_frames(frames); }
 int PNCCProcessor::get_medium_time_frames() const { return core.get_medium_time_frames(); }
+void PNCCProcessor::set_lambda_a(float lambda_a) { core.set_lambda_a(lambda_a); }
+float PNCCProcessor::get_lambda_a() const { return core.get_lambda_a(); }
+void PNCCProcessor::set_lambda_b(float lambda_b) { core.set_lambda_b(lambda_b); }
+float PNCCProcessor::get_lambda_b() const { return core.get_lambda_b(); }
+void PNCCProcessor::set_lambda_t(float lambda_t) { core.set_lambda_t(lambda_t); }
+float PNCCProcessor::get_lambda_t() const { return core.get_lambda_t(); }
 
 
 TypedArray<PackedFloat32Array> PNCCProcessor::compute(
