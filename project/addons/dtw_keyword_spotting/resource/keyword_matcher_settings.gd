@@ -18,7 +18,7 @@ enum FeatureExtractionMethod
 ## The relative width of the Sakoe-Chiba band.
 ## 1 means the full width
 ## 0 means we compare only the diagonals
-@export_range(0,1,0.01) var sakoe_chiba_band_width: float
+@export_range(0, 1, 0.01) var sakoe_chiba_band_width: float = 0.2
 
 @export_group("Feature extraction")
 @export var feature_extraction_method: FeatureExtractionMethod = FeatureExtractionMethod.PNCC
@@ -45,7 +45,7 @@ enum FeatureExtractionMethod
 @export var num_gamma_bands: int = 40
 ## Controls the compression applied to the power spectrum.
 ## Lower values reduce the influence of large amplitude variations.
-@export var power_law_exponent: float = 1.0/15.0
+@export var power_law_exponent: float = 1.0 / 15.0
 ## Controls the length of the medium-time integration window used by PNCC.
 @export var medium_time_frame: int = 2
 @export_subgroup("PNCC specific/Asymmetric noise suppression")
@@ -66,7 +66,6 @@ enum FeatureExtractionMethod
 var dirty := false
 
 
-
 func create_dtw_matcher() -> DTWMatcher:
 	var dtw = DTWMatcher.new()
 	dtw.distance_metric = distance_metric
@@ -84,18 +83,6 @@ func create_feature_extractor() -> Variant:
 		_:
 			push_error("feature extraction invalid, defaulting to mfcc")
 			return _create_mfcc_processor()
-
-
-func wav_to_pcm(stream: AudioStreamWAV) -> PackedFloat32Array:
-	var data := stream.data # PackedByteArray (16-bit LE stereo/mono)
-	var out := PackedFloat32Array()
-	var i := 0
-	while i + 1 < data.size():
-		var sample := int(data[i]) | (int(data[i + 1]) << 8)
-		if sample >= 32768: sample -= 65536
-		out.append(sample / 32768.0)
-		i += 2 * (2 if stream.stereo else 1) # skip right channel if stereo
-	return out
 
 
 func _create_pncc_processor() -> PNCCProcessor:

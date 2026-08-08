@@ -52,10 +52,6 @@ project/.vscode/
 cmake-build*
 CMakeUserPresets.json
 
-
-project/ignored_assets/
-
-
 # Python
 __pycache__/
 *.pyc

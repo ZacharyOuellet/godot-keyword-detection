@@ -68,7 +68,7 @@ float DTWMatcherCore::compute(const FeatureSequence& seq_a,
                 prev = 0.0f; // (0,0) origin
             }
 
-            idx(i, j) = d + (prev == INF ? 0.0f : prev);
+            idx(i, j) = (prev == INF) ? INF : d + prev;
         }
     }
 
