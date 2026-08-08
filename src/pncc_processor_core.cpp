@@ -116,12 +116,12 @@ PNCC PNCCProcessorCore::compute(
             compressed[i] = std::pow(std::max(frame[i], 0.0f), _power_law_exponent);
         }
         std::vector<float> coeffs = Utils::dct(compressed, _num_coeffs);
-
-        Utils::apply_mean_normalize(coeffs);
-
         coeffs.resize(_num_coeffs, 0.0f);
         result.push_back(coeffs);
     }
+
+    // Cepstral mean normalization
+    Utils::apply_cepstral_mean_normalize(result);
 
     return result;
 }

@@ -78,13 +78,12 @@ MFCCSequence MFCCProcessorCore::compute(const std::vector<float>& samples) {
 
         // 7. DCT → MFCCs
         std::vector<float> coeffs = Utils::dct(mel_energies, _num_coeffs);
-
-        // 8. Normalize
-        Utils::apply_mean_normalize(coeffs);
-
         coeffs.resize(_num_coeffs, 0.0f);
         result.push_back(coeffs);
     }
+
+    // 8. Cepstral mean normalization
+    Utils::apply_cepstral_mean_normalize(result);
 
     return result;
 }

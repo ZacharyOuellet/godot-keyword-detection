@@ -277,6 +277,48 @@ def select_words(
 
 
 # --------------------------------------------------------------------------
+# Silence trimming (mirrors KeywordMatcher._trim_silence in keyword_matcher.gd)
+# --------------------------------------------------------------------------
+def trim_silence(
+    pcm: np.ndarray,
+    sample_rate: int,
+    window_ms: float = 20.0,
+    threshold_ratio: float = 0.05,
+) -> np.ndarray:
+    """Strip leading/trailing silence based on short-window RMS energy
+    relative to the clip's peak RMS. Must match the Godot-side trimming
+    (same window_ms/threshold_ratio semantics) so evaluation numbers reflect
+    what the deployed app actually sees - templates and live audio there are
+    both trimmed the same way, right before feature extraction."""
+    if pcm.size == 0:
+        return pcm
+
+    window = max(1, int(round(window_ms * sample_rate / 1000.0)))
+    num_windows = int(np.ceil(pcm.size / window))
+
+    rms = np.empty(num_windows, dtype=np.float64)
+    for w in range(num_windows):
+        start = w * window
+        end = min(start + window, pcm.size)
+        chunk = pcm[start:end].astype(np.float64)
+        rms[w] = np.sqrt(np.mean(chunk ** 2))
+
+    peak_rms = rms.max()
+    if peak_rms <= 0.0:
+        return pcm  # fully silent clip, nothing sensible to trim
+
+    threshold = peak_rms * threshold_ratio
+    above = np.flatnonzero(rms >= threshold)
+    if above.size == 0:
+        return pcm  # nothing above threshold, leave as-is
+
+    first_window, last_window = int(above[0]), int(above[-1])
+    start_sample = first_window * window
+    end_sample = min((last_window + 1) * window, pcm.size)
+    return pcm[start_sample:end_sample]
+
+
+# --------------------------------------------------------------------------
 # Audio / feature helpers
 # --------------------------------------------------------------------------
 def load_mp3_as_pcm(path: str, target_sr: int) -> np.ndarray:
@@ -289,8 +331,17 @@ class FeatureCache:
     so the same clip isn't decoded/re-featurized for every
     distance-metric x classify-method combo (they share features)."""
 
-    def __init__(self, target_sr: int):
+    def __init__(
+        self,
+        target_sr: int,
+        trim_window_ms: float = 20.0,
+        trim_threshold_ratio: float = 0.05,
+        trim_enabled: bool = True,
+    ):
         self.target_sr = target_sr
+        self.trim_window_ms = trim_window_ms
+        self.trim_threshold_ratio = trim_threshold_ratio
+        self.trim_enabled = trim_enabled
         self._pcm_cache: Dict[str, np.ndarray] = {}
         self._feat_cache: Dict[Tuple[str, str, str, int], np.ndarray] = {}
 
@@ -311,7 +362,16 @@ class FeatureCache:
         if key not in self._feat_cache:
             pcm = self.get_pcm(path)
             noisy = add_noise(pcm, snr_db, noise_seed_for(path, snr_label))
-            self._feat_cache[key] = feature_extractor.compute(noisy)
+            # Trim AFTER noise injection: this mirrors the real pipeline,
+            # where the mic captures noisy audio and trimming runs on
+            # whatever was actually recorded, not on a clean reference.
+            if self.trim_enabled:
+                signal = trim_silence(
+                    noisy, self.target_sr, self.trim_window_ms, self.trim_threshold_ratio
+                )
+            else:
+                signal = noisy
+            self._feat_cache[key] = feature_extractor.compute(signal)
         return self._feat_cache[key]
 
     def clear(self):
@@ -446,6 +506,9 @@ def process_locale(
     num_coeffs: int,
     combos,
     band_width,
+    trim_window_ms: float = 20.0,
+    trim_threshold_ratio: float = 0.05,
+    trim_enabled: bool = True,
 ):
     rng = random.Random(seed)
     detailed_rows = []
@@ -465,7 +528,7 @@ def process_locale(
     )
     if not word_split:
         return locale, [], []
-    cache = FeatureCache(sample_rate)
+    cache = FeatureCache(sample_rate, trim_window_ms, trim_threshold_ratio, trim_enabled)
     summary = []
     for feature, distance, classify, (snr_label, snr_db) in combos:
         cfg = RunConfig(
@@ -512,7 +575,10 @@ def process_locale(
 # --------------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--corpus-dir", default="C:/Users/zacha/Documents/audioMozilla/cv-corpus-7.0-singleword")
+    parser.add_argument(
+        "--corpus-dir",
+        default="C:/Users/zacha/Documents/_audioMozilla/cv-corpus-7.0-singleword",
+    )
     parser.add_argument("--locales", nargs="*", default=None, help="Subset of locale codes to run (default: all found)")
     parser.add_argument("--tsv-names", nargs="*", default=["validated.tsv"])
     parser.add_argument("--num-templates", type=int, default=5)
@@ -527,6 +593,9 @@ def main():
     parser.add_argument("--classify-methods", nargs="*", default=["best_match", "average"])
     parser.add_argument("--noise-snr-db", default="clean,20,10,0", help="Comma list, e.g. 'clean,20,10,0'")
     parser.add_argument("--band-width", type=float, default=None, help="Sakoe-Chiba DTW band width; omit to use the library default")
+    parser.add_argument("--trim-window-ms", type=float, default=20.0, help="Silence-trim RMS analysis window, in ms")
+    parser.add_argument("--trim-threshold-ratio", type=float, default=0.05, help="Silence-trim threshold as a fraction of the clip's peak RMS")
+    parser.add_argument("--no-trim", action="store_true", help="Disable silence trimming (for A/B comparison against the trimmed pipeline)")
     parser.add_argument("--output-dir", default="./results")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--dry-run", action="store_true", help="Sanity-check API names + data availability, then exit")
@@ -575,7 +644,7 @@ def main():
         futures = []
         for locale in locales:
             futures.append(
-                executor.submit(process_locale, locale, corpus_dir, args.tsv_names, args.min_up_votes, args.max_down_votes, args.num_templates, args.max_test_per_word, args.max_words_per_locale, args.seed, args.sample_rate, args.num_coeffs, combos, args.band_width,)
+                executor.submit(process_locale, locale, corpus_dir, args.tsv_names, args.min_up_votes, args.max_down_votes, args.num_templates, args.max_test_per_word, args.max_words_per_locale, args.seed, args.sample_rate, args.num_coeffs, combos, args.band_width, args.trim_window_ms, args.trim_threshold_ratio, not args.no_trim,)
             )
         for future in as_completed(futures):
             locale, locale_rows, summary = future.result()

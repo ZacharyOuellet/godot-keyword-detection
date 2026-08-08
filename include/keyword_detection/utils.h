@@ -33,15 +33,30 @@ namespace Utils {
         return out;
     }
 
-    inline void apply_mean_normalize(std::vector<float>& values) {
-        if (values.empty()) return;
-        float sum = 0.0f;
-        for (float v : values) {
-            sum += v;
+    // Real Cepstral Mean Normalization: for each coefficient index k,
+    // subtract the mean of c_k across ALL frames of the utterance. This is
+    // what actually removes constant channel/gain/mic-distance mismatch
+    // between two different recordings of the same word. Call this once
+    // per utterance, after every frame's coefficients have been computed -
+    // never per-frame.
+    inline void apply_cepstral_mean_normalize(std::vector<std::vector<float>>& frames) {
+        if (frames.empty()) return;
+        const size_t num_coeffs = frames[0].size();
+
+        std::vector<float> mean(num_coeffs, 0.0f);
+        for (const auto& frame : frames) {
+            for (size_t k = 0; k < num_coeffs; ++k) {
+                mean[k] += frame[k];
+            }
         }
-        float mean = sum / static_cast<float>(values.size());
-        for (size_t i = 0; i < values.size(); ++i) {
-            values[i] = values[i] - mean;
+        for (size_t k = 0; k < num_coeffs; ++k) {
+            mean[k] /= static_cast<float>(frames.size());
+        }
+
+        for (auto& frame : frames) {
+            for (size_t k = 0; k < num_coeffs; ++k) {
+                frame[k] -= mean[k];
+            }
         }
     }
 
