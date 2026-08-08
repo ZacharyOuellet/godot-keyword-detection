@@ -1,6 +1,9 @@
 [gd_scene format=3 uid="uid://dsoy40ee2t0y5"]
 
 [ext_resource type="Script" uid="uid://ld3b3am14dfr" path="res://demo.gd" id="1_c6xj6"]
+[ext_resource type="Script" uid="uid://27noi72or4kg" path="res://addons/dtw_keyword_spotting/nodes/keyword_matcher.gd" id="2_0bhed"]
+[ext_resource type="PackedScene" uid="uid://l3tctyis050i" path="res://recorder.tscn" id="2_c6xj6"]
+[ext_resource type="Resource" uid="uid://byh6qqbypeuko" path="res://ressource/number_matcher_settings.tres" id="3_m0rpm"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_m0rpm"]
 font_size = 24
@@ -22,19 +25,21 @@ script = ExtResource("1_c6xj6")
 
 [node name="CompareContainer" type="VBoxContainer" parent="." unique_id=723885921]
 layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.5
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-grow_horizontal = 0
+grow_horizontal = 2
 grow_vertical = 2
 alignment = 1
 
 [node name="Label" type="Label" parent="CompareContainer" unique_id=211694493]
 layout_mode = 2
-text = "Compare to another audio clip"
+text = "Try DTW word matching by saying english numbers"
 label_settings = SubResource("LabelSettings_m0rpm")
 horizontal_alignment = 1
+
+[node name="Recorder" parent="CompareContainer" unique_id=1134035084 instance=ExtResource("2_c6xj6")]
+layout_mode = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="CompareContainer" unique_id=298105048]
 layout_mode = 2
@@ -110,6 +115,12 @@ MINIMAL DISTANCE:
 MAXIMAL DISTANCE:"
 horizontal_alignment = 1
 
+[node name="KeywordMatcher" type="Node" parent="." unique_id=999419804]
+script = ExtResource("2_0bhed")
+settings = ExtResource("3_m0rpm")
+metadata/_custom_type_script = "uid://27noi72or4kg"
+
+[connection signal="recording_confirmed" from="CompareContainer/Recorder" to="." method="_on_compare_request"]
 [connection signal="pressed" from="CompareContainer/HBoxContainer/FeatureExtraction/MFCC" to="." method="set_feature_extractor" binds= [0]]
 [connection signal="pressed" from="CompareContainer/HBoxContainer/FeatureExtraction/PNCC" to="." method="set_feature_extractor" binds= [1]]
 [connection signal="pressed" from="CompareContainer/HBoxContainer/MatchingModeSelection/Average" to="." method="set_matching_mode" binds= [0]]

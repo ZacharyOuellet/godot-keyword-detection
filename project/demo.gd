@@ -1,48 +1,10 @@
 extends Control
 
-enum FeatureExtractor {
-	MFCC,
-	PNCC
-}
+@onready var keyword_matcher: KeywordMatcher = $"KeywordMatcher"
 
-
-var _mfcc := MFCCProcessor.new()
-var _pncc := PNCCProcessor.new()
-var _matcher := DTWMatcher.new()
-
-var _extractor: FeatureExtractor = FeatureExtractor.MFCC
 
 func _on_compare_request(audioStream: AudioStreamWAV):
-	for template: Dictionary in $SamplesPanel.get_all_file_paths_and_labels():
-		_matcher.add_template(template["label"], _extract_audio_feature(AudioStreamWAV.load_from_file(template["path"])))
-
-	var arr := _extract_audio_feature(audioStream)
-
-	_display_result(_matcher.classify_with_every_score(arr))
-
-
-func _extract_audio_feature(audioStream: AudioStreamWAV) -> Array[PackedFloat32Array]:
-	match (_extractor):
-		FeatureExtractor.MFCC:
-			return _mfcc.compute(_wav_to_pcm(audioStream))
-		FeatureExtractor.PNCC:
-			return _pncc.compute(_wav_to_pcm(audioStream))
-		_:
-			push_warning("Invalid feature extractor : " + str(_extractor) + " . Reverting to pncc")
-			return _pncc.compute(_wav_to_pcm(audioStream))
-
-
-func _wav_to_pcm(stream: AudioStreamWAV) -> PackedFloat32Array:
-	var data := stream.data # PackedByteArray (16-bit LE stereo/mono)
-	var out := PackedFloat32Array()
-	var i := 0
-	while i + 1 < data.size():
-		var sample := int(data[i]) | (int(data[i + 1]) << 8)
-		if sample >= 32768: sample -= 65536
-		out.append(sample / 32768.0)
-		i += 2 * (2 if stream.stereo else 1) # skip right channel if stereo
-	return out
-
+	_display_result(keyword_matcher.recognize_wav_detailed(audioStream))
 
 func _display_result(result: Dictionary):
 	var text: String = ""
@@ -76,10 +38,10 @@ func _sort_dict(dict: Dictionary) -> void:
 		dict[p[0]] = p[1]
 
 func set_matching_mode(classify_method: DTWMatcher.ClassifyMethod):
-	_matcher.classify_method = classify_method
+	keyword_matcher.settings.classification_method = classify_method
 
 func set_distance_metric(distance_metric: DTWMatcher.DistanceMetric):
-	_matcher.distance_metric = distance_metric
+	keyword_matcher.settings.distance_metric = distance_metric
 
-func set_feature_extractor(feature_extractor: FeatureExtractor):
-	_extractor = feature_extractor
+func set_feature_extractor(feature_extractor: KeywordMatcherSettings.FeatureExtractionMethod):
+	keyword_matcher.settings.feature_extraction_method = feature_extractor

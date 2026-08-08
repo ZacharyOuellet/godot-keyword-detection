@@ -1,10 +1,9 @@
 [gd_scene format=3 uid="uid://l3tctyis050i"]
 
 [ext_resource type="Script" uid="uid://dpgy2nkwib0bc" path="res://recorder.gd" id="2_4fe4l"]
+[ext_resource type="Texture2D" uid="uid://ybconef2ni8t" path="res://assets/ImportCheck.svg" id="2_vr0x3"]
 [ext_resource type="Texture2D" uid="uid://cswim7txakesa" path="res://assets/DebugSkipBreakpointsOff.svg" id="3_muxhn"]
 [ext_resource type="Texture2D" uid="uid://nhnhasxu0s0r" path="res://assets/TransitionImmediateAuto.svg" id="4_isgtb"]
-[ext_resource type="Texture2D" uid="uid://7c3gk0pknhkk" path="res://assets/Save.svg" id="5_8bwfh"]
-[ext_resource type="Texture2D" uid="uid://bxy8e51txjf1u" path="res://assets/GuiClose.svg" id="6_p5kqj"]
 
 [sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_2jas5"]
 
@@ -43,17 +42,11 @@ layout_mode = 2
 disabled = true
 icon = ExtResource("4_isgtb")
 
-[node name="Save" type="Button" parent="Buttons" unique_id=1779961133]
+[node name="Confirm" type="Button" parent="Buttons" unique_id=1779961133]
 layout_mode = 2
 disabled = true
-icon = ExtResource("5_8bwfh")
-
-[node name="Cancel" type="Button" parent="Buttons" unique_id=793304400]
-layout_mode = 2
-disabled = true
-icon = ExtResource("6_p5kqj")
+icon = ExtResource("2_vr0x3")
 
 [connection signal="pressed" from="Buttons/Record" to="." method="_on_record_button_pressed"]
 [connection signal="pressed" from="Buttons/Play" to="." method="_on_play_button_pressed"]
-[connection signal="pressed" from="Buttons/Save" to="." method="_on_save_button_pressed"]
-[connection signal="pressed" from="Buttons/Cancel" to="." method="_on_cancel_button_pressed"]
+[connection signal="pressed" from="Buttons/Confirm" to="." method="_on_confirm_button_pressed"]
