@@ -11,24 +11,10 @@ signal no_keyword_recognized
 		if is_inside_tree():
 			_rebuild()
 
-## When enabled, every template's post-trim PCM is written out as a real
-## .wav file under [member debug_trimmed_wav_dir] during _rebuild(), so you
-## can listen to / inspect exactly what the matcher enrolled after silence
-## trimming. Leave off for normal use - it's disk I/O on every rebuild.
-@export var debug_save_trimmed_wav: bool = false
-@export var debug_trimmed_wav_dir: String = "user://debug_trimmed"
-
 var _feature_extractor: Variant
 var _dtw: DTWMatcher
-var _debug_player: AudioStreamPlayer
 
-
-## Builds a playable AudioStreamWAV directly from PCM, entirely in memory -
-## no disk round-trip, no manual RIFF/WAVE header. This is intentionally a
-## SEPARATE code path from _save_debug_wav(): if audio played through this
-## sounds correct but the saved .wav file doesn't, the bug is in the WAV
-## file writer. If BOTH sound wrong, the bug is upstream (in the PCM itself -
-## decoding, resampling, or trimming), not in either playback method.
+## used to debug, create an audio stream from a pcm
 func _make_playable_stream(pcm: PackedFloat32Array, sample_rate: int) -> AudioStreamWAV:
 	var stream := AudioStreamWAV.new()
 	stream.format = AudioStreamWAV.FORMAT_16_BITS
@@ -44,19 +30,6 @@ func _make_playable_stream(pcm: PackedFloat32Array, sample_rate: int) -> AudioSt
 		bytes[i * 2 + 1] = (value >> 8) & 0xFF
 	stream.data = bytes
 	return stream
-
-
-## Plays [param pcm] immediately via Godot's own audio engine, bypassing the
-## debug .wav file writer entirely. Call this from anywhere (e.g. the
-## Remote tab / a temporary button) to sanity-check what a given PCM buffer
-## actually sounds like, independent of _save_debug_wav().
-## Example: $KeywordMatcher.debug_play(trimmed_pcm, settings.sample_rate)
-func debug_play(pcm: PackedFloat32Array, sample_rate: int) -> void:
-	if _debug_player == null:
-		_debug_player = AudioStreamPlayer.new()
-		add_child(_debug_player)
-	_debug_player.stream = _make_playable_stream(pcm, sample_rate)
-	_debug_player.play()
 
 
 func _ready() -> void:
@@ -89,66 +62,9 @@ func _rebuild() -> void:
 			if audio is AudioStreamWAV:
 				var resampled_audio := linear_resample(audio, settings.sample_rate)
 				var pcm := _trim_silence(_wav_to_pcm(resampled_audio), settings.sample_rate)
-
-				if debug_save_trimmed_wav:
-					var path := "%s/%s_%02d.wav" % [debug_trimmed_wav_dir, label, clip_index]
-					_save_debug_wav(pcm, settings.sample_rate, path)
-					# Also play it through the in-memory path (see debug_play's
-					# comment) so you can compare the two independently.
-					#debug_play(pcm, settings.sample_rate)
-					#await get_tree().create_timer(pcm.size() / float(settings.sample_rate) + 0.2).timeout
 				clip_index += 1
 
 				_dtw.add_template(label, _feature_extractor.compute(pcm))
-
-
-## Writes 16-bit mono PCM to a real .wav file at [param path] (e.g.
-## "user://debug_trimmed/two_00.wav"). Intended for debugging/inspection,
-## not for production use in the recognition hot path.
-func _save_debug_wav(pcm: PackedFloat32Array, sample_rate: int, path: String) -> void:
-	var dir := path.get_base_dir()
-	if dir != "" and not DirAccess.dir_exists_absolute(dir):
-		var err := DirAccess.make_dir_recursive_absolute(dir)
-		if err != OK:
-			push_warning("Could not create dir %s (error %s)" % [dir, err])
-			return
-
-	var file := FileAccess.open(path, FileAccess.WRITE)
-	if file == null:
-		push_warning("Could not open %s for writing (error %s)" % [path, FileAccess.get_open_error()])
-		return
-
-	const BITS_PER_SAMPLE := 16
-	const NUM_CHANNELS := 1
-	var block_align: int = NUM_CHANNELS * BITS_PER_SAMPLE / 8
-	var byte_rate: int = sample_rate * block_align
-	var data_size: int = pcm.size() * (BITS_PER_SAMPLE / 8)
-	var riff_size: int = 36 + data_size
-
-	# ---- RIFF header ----
-	file.store_buffer("RIFF".to_ascii_buffer())
-	file.store_32(riff_size)
-	file.store_buffer("WAVE".to_ascii_buffer())
-
-	# ---- fmt chunk ----
-	file.store_buffer("fmt ".to_ascii_buffer())
-	file.store_32(16) # fmt chunk size (16 for PCM)
-	file.store_16(1)  # audio format: 1 = PCM
-	file.store_16(NUM_CHANNELS)
-	file.store_32(sample_rate)
-	file.store_32(byte_rate)
-	file.store_16(block_align)
-	file.store_16(BITS_PER_SAMPLE)
-
-	# ---- data chunk ----
-	file.store_buffer("data".to_ascii_buffer())
-	file.store_32(data_size)
-	for sample in pcm:
-		var clamped: float = clamp(sample, -1.0, 1.0)
-		var value: int = int(round(clamped * 32767.0))
-		file.store_16(value & 0xFFFF)
-
-	file.close()
 
 
 ## Runs keyword spotting on a full WAV clip. Returns the recognized label, or
