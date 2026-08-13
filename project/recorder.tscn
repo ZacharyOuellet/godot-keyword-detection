@@ -25,7 +25,7 @@ bus = &"Record"
 
 [node name="Label" type="Label" parent="." unique_id=131339201]
 layout_mode = 2
-text = "Record"
+text = "Record a wav"
 horizontal_alignment = 1
 
 [node name="Buttons" type="HBoxContainer" parent="." unique_id=1877320818]

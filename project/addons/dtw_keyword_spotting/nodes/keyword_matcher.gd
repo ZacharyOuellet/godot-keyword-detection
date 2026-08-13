@@ -16,12 +16,12 @@ var _dtw: DTWMatcher
 
 ## used to debug, create an audio stream from a pcm
 func _make_playable_stream(pcm: PackedFloat32Array, sample_rate: int) -> AudioStreamWAV:
-	var stream := AudioStreamWAV.new()
+	var stream: AudioStreamWAV = AudioStreamWAV.new()
 	stream.format = AudioStreamWAV.FORMAT_16_BITS
 	stream.mix_rate = sample_rate
 	stream.stereo = false
 
-	var bytes := PackedByteArray()
+	var bytes: PackedByteArray = PackedByteArray()
 	bytes.resize(pcm.size() * 2)
 	for i in pcm.size():
 		var clamped: float = clamp(pcm[i], -1.0, 1.0)
