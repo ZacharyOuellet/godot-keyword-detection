@@ -11,6 +11,9 @@ indent_size = 4
 [*.gd]
 indent_style = tab
 
+[*.xml]
+indent_style = tab
+
 [*.{yml,yaml}]
 indent_size = 2
 

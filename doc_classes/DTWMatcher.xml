@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <class name="DTWMatcher" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
 	<brief_description>
+		Dynamic Time Warping implementation.
 	</brief_description>
 	<description>
+		This class provides an implementation of the Dynamic Time Warping algorithm for template matching. It allows you to add templates to classify against. You can also just compare two sequences to get the distance between them.
+		It supports having multiple templates for each label. You can choose to classify using the average or best match for each label.
 	</description>
 	<tutorials>
 	</tutorials>
@@ -12,29 +15,35 @@
 			<param index="0" name="label" type="String" />
 			<param index="1" name="features" type="PackedFloat32Array[]" />
 			<description>
+				The main method for adding a template with a specific label and feature array. The features should be a 2D array that is completely filled.
+				It can be cleared with [method clear_templates]
 			</description>
 		</method>
 		<method name="classify" qualifiers="const">
 			<return type="String" />
 			<param index="0" name="features" type="PackedFloat32Array[]" />
 			<description>
+				Classifies the input features using the specified classification method.
 			</description>
 		</method>
 		<method name="classify_with_best_score" qualifiers="const">
 			<return type="Dictionary" />
 			<param index="0" name="features" type="PackedFloat32Array[]" />
 			<description>
+				Classifies the input features and returns a dictionary with the best label and it's score. The dictionary has the keys "label" and "score".
 			</description>
 		</method>
 		<method name="classify_with_every_score" qualifiers="const">
 			<return type="Dictionary" />
 			<param index="0" name="features" type="PackedFloat32Array[]" />
 			<description>
+				Classifies the input features and returns a dictionary with the best label and it's score. The dictionary has the labels as keys and the scores as values.
 			</description>
 		</method>
 		<method name="clear_templates">
 			<return type="void" />
 			<description>
+				Removes all the templates added with [method add_template].
 			</description>
 		</method>
 		<method name="compute" qualifiers="const">
@@ -42,15 +51,22 @@
 			<param index="0" name="seq_a" type="PackedFloat32Array[]" />
 			<param index="1" name="seq_b" type="PackedFloat32Array[]" />
 			<description>
+				Returns the distance between [param seq_a] and [param seq_b] using DTW and the parameters stored.
 			</description>
 		</method>
 	</methods>
 	<members>
-		<member name="band_width" type="int" setter="set_band_width" getter="get_band_width" default="0">
+		<member name="band_width" type="float" setter="set_band_width" getter="get_band_width" default="1.0">
+			A relative Sakoe-Shiba band with. 1.0 means that it uses the full width for the band and 0 means that the distance will be measured only with the diagonal.
 		</member>
-		<member name="classify_method" type="int" setter="set_classify_method" getter="get_classify_method" default="0">
+		<member name="classify_method" type="int" setter="set_classify_method" getter="get_classify_method" enum="DTWMatcher.ClassifyMethod" default="0">
+			[constant AVERAGE_DISTANCE] will take the average of all samples for a given label and use it as the distance to classify.
+			[constant BEST_MATCH] this mode will only keep the score of the best sample for each label and then pick the best among those.
 		</member>
-		<member name="distance_metric" type="int" setter="set_distance_metric" getter="get_distance_metric" default="0">
+		<member name="distance_metric" type="int" setter="set_distance_metric" getter="get_distance_metric" enum="DTWMatcher.DistanceMetric" default="0">
+			The features are basically N dimmensions vector so the distance can be measured in multiple ways:
+			[constant EUCLIDEAN] is the "usual" distance method, measuring the linear distance between the two vectors.
+			[constant COSINE] measures the cosine of the angle between the two vectors.
 		</member>
 	</members>
 	<constants>

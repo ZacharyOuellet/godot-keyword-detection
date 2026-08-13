@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <class name="PNCCProcessor" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
 	<brief_description>
+		Implements a Power-Normalized Cepstral Coefficients (PNCC) feature extractor.
 	</brief_description>
 	<description>
+		Extracts Power-Normalized Cepstral Coefficients (PNCC) from an audio signal, a feature representation similar to MFCC but more robust to noise and reverberation, commonly used as a front-end for speech and keyword recognition.
+		It can be used with [DTWMatcher] for keyword spotting.
 	</description>
 	<tutorials>
 	</tutorials>
@@ -11,23 +14,40 @@
 			<return type="PackedFloat32Array[]" />
 			<param index="0" name="samples" type="PackedFloat32Array" />
 			<description>
+				Computes the PNCC features for the given audio samples. The samples are expected to be a 1D [PackedFloat32Array] each value in [code][-1.0, 1.0][/code]. The output is a 2D array ([Array] of [PackedFloat32Array]) where each row is a frame and each column is a coefficient.
 			</description>
 		</method>
 	</methods>
 	<members>
 		<member name="frame_length" type="int" setter="set_frame_length" getter="get_frame_length" default="512">
+			The length of each frame in samples, a longer frame length will give more frequency resolution but less time resolution.
 		</member>
 		<member name="hop_length" type="int" setter="set_hop_length" getter="get_hop_length" default="256">
+			The number of samples between the start of each frame. A smaller hop length will give more time resolution but less frequency resolution.
+		</member>
+		<member name="lambda_a" type="float" setter="set_lambda_a" getter="get_lambda_a" default="0.999">
+			The noise floor's rise rate, a higher lambda_a will preserve speech onsets better but adapt more slowly to rising noise.
+		</member>
+		<member name="lambda_b" type="float" setter="set_lambda_b" getter="get_lambda_b" default="0.5">
+			The noise floor's fall rate, a higher lambda_b will keep the floor elevated longer after loud segments but suppress noise less aggressively in quiet stretches.
+		</member>
+		<member name="lambda_t" type="float" setter="set_lambda_t" getter="get_lambda_t" default="0.85">
+			The masking peak's decay rate, a higher lambda_t will extend forward masking over more frames but reduce fine temporal detail.
 		</member>
 		<member name="medium_time_frames" type="int" setter="set_medium_time_frames" getter="get_medium_time_frames" default="2">
+			The half-width of the medium-time averaging window in frames, a higher medium_time_frames will smooth the power trajectory more but reduce responsiveness to fast changes.
 		</member>
 		<member name="num_coeffs" type="int" setter="set_num_coeffs" getter="get_num_coeffs" default="13">
+			The number of DCT coefficients kept per frame. The more coefficients, the more information is captured, but it will also be more sensitive to noise.
 		</member>
 		<member name="num_gamma_bands" type="int" setter="set_num_gamma_bands" getter="get_num_gamma_bands" default="40">
+			The number of gamma frequency bands to use. The more bands, the more information is captured, but it will also be more sensitive to noise.
 		</member>
 		<member name="power_law_exponent" type="float" setter="set_power_law_exponent" getter="get_power_law_exponent" default="0.06666667">
+			The exponent for the power law transformation. This controls the non-linearity of the transformation.
 		</member>
 		<member name="sample_rate" type="int" setter="set_sample_rate" getter="get_sample_rate" default="16000">
+			The sample rate of the audio signal in Hz. This should match the sample rate of the input audio.
 		</member>
 	</members>
 </class>

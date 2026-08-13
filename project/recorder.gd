@@ -27,8 +27,6 @@ func _on_record_button_pressed() -> void:
 	if recordEffect.is_recording_active():
 		recordEffect.set_recording_active(false)
 		recording = recordEffect.get_recording()
-		# recording.set_format(format)
-		# recording.set_stereo(stereo)
 		recording_stopped.emit()
 	else:
 		recordEffect.set_recording_active(true)

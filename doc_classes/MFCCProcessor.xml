@@ -1,29 +1,38 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <class name="MFCCProcessor" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
 	<brief_description>
+		Implements a Mel-Frequency Cepstral Coefficients (MFCC) feature extractor.
 	</brief_description>
 	<description>
+		An MFCC feature extraction algorithm. An MFCC is similar to a spectrogram, but it is more compact and mimics the human auditory system.
+		It can be used with [DTWMatcher] for keyword spotting.
 	</description>
 	<tutorials>
 	</tutorials>
 	<methods>
 		<method name="compute">
 			<return type="PackedFloat32Array[]" />
-			<param index="0" name="samples" type="PackedFloat32Array" />
+			<param index="0" name="sample" type="PackedFloat32Array" />
 			<description>
+				Computes the MFCC features for the given audio sample. The sample is expected to be a 1D [PackedFloat32Array] each value in [code][-1.0, 1.0][/code]. The output is a 2D array ([Array] of [PackedFloat32Array]) where each row is a frame and each column is a coefficient.
 			</description>
 		</method>
 	</methods>
 	<members>
 		<member name="frame_length" type="int" setter="set_frame_length" getter="get_frame_length" default="512">
+			The length of each frame in samples, a longer frame length will give more frequency resolution but less time resolution.
 		</member>
 		<member name="hop_length" type="int" setter="set_hop_length" getter="get_hop_length" default="256">
+			The number of samples between the start of each frame. A smaller hop length will give more time resolution but less frequency resolution.
 		</member>
 		<member name="num_coeffs" type="int" setter="set_num_coeffs" getter="get_num_coeffs" default="13">
+			The number of MFCC coefficients to compute. The more coefficients, the more information is captured, but it will also be more sensitive to noise.
 		</member>
 		<member name="num_mel_bands" type="int" setter="set_num_mel_bands" getter="get_num_mel_bands" default="40">
+			The number of Mel frequency bands to use. The more bands, the more information is captured, but it will also be more sensitive to noise.
 		</member>
 		<member name="sample_rate" type="int" setter="set_sample_rate" getter="get_sample_rate" default="22050">
+			The sample rate of the audio signal in Hz. This should match the sample rate of the input audio.
 		</member>
 	</members>
 </class>

@@ -1,133 +1,76 @@
-# godot-mfcc-dtw
+# godot-keyword-detection
 
-A Godot 4 GDExtension that exposes **MFCC** (Mel-Frequency Cepstral Coefficients)
-and **DTW** (Dynamic Time Warping) as first-class Godot classes.
-Designed for real-time audio gesture / speech-command recognition.
-
----
-
-## Classes
-
-### `MFCCProcessor`
-
-Converts raw PCM audio (mono `PackedFloat32Array` in `[-1, 1]`) into a sequence
-of MFCC feature vectors.
-
-| Property        | Default | Description                          |
-|-----------------|---------|--------------------------------------|
-| `sample_rate`   | 22050   | Sample rate of the input audio       |
-| `num_coeffs`    | 13      | Number of cepstral coefficients      |
-| `frame_length`  | 512     | FFT frame size (must be power of 2)  |
-| `hop_length`    | 256     | Step between frames                  |
-| `num_mel_bands` | 40      | Mel filterbank bands                 |
-
-```gdscript
-var mfcc := MFCCProcessor.new()
-mfcc.sample_rate   = 22050
-mfcc.num_coeffs    = 13
-mfcc.frame_length  = 512
-mfcc.hop_length    = 256
-mfcc.num_mel_bands = 40
-
-# features: Array[PackedFloat32Array]  — one entry per frame
-var features: Array = mfcc.compute(pcm_samples)
-```
-
----
-
-### `DTWMatcher`
-
-Computes the DTW distance between two MFCC sequences, or classifies an unknown
-sequence against a set of labelled templates.
-
-| Property          | Default     | Description                              |
-|-------------------|-------------|------------------------------------------|
-| `distance_metric` | `EUCLIDEAN` | Frame distance: `EUCLIDEAN` or `COSINE`  |
-| `band_width`      | 0           | Sakoe-Chiba band (0 = no constraint)     |
-
-```gdscript
-var dtw := DTWMatcher.new()
-dtw.distance_metric = DTWMatcher.EUCLIDEAN
-dtw.band_width      = 20   # optional: constrain warping path
-
-# Raw distance between two sequences
-var dist: float = dtw.compute(features_a, features_b)
-
-# --- Template matching ---
-dtw.add_template("hello",  mfcc_hello_reference)
-dtw.add_template("stop",   mfcc_stop_reference)
-
-var label: String     = dtw.classify(unknown_features)
-var result: Dictionary = dtw.classify_with_score(unknown_features)
-# result == { "label": "hello", "distance": 0.42 }
-```
-
----
-
-## Building
-
-### Prerequisites
-
-- Python 3 + SCons (`pip install scons`)
-- A C++17 compiler (GCC, Clang, or MSVC)
-- godot-cpp checked out as a submodule
-
-```bash
-git clone --recurse-submodules https://github.com/YOUR_USER/godot-mfcc-dtw.git
-cd godot-mfcc-dtw
-
-# Debug build for the current platform
-scons target=template_debug
-
-# Release build
-scons target=template_release
-```
-
-Binaries are written to `addons/godot_keyword_detection/bin/`.
+A Godot 4 plugin that allows keyword spotting using **Dynamic Time Warping (DTW)**. The main computation happens in a GDExtension in C++ but a handy node makes it easy to use.
 
 ---
 
 ## Installation
+See releases for the content to add it to your godot project. It is also available on the Godot Asset Library
 
-Copy the entire `addons/godot_keyword_detection/` folder into your project's `addons/` directory,
-then enable **MFCC-DTW** in **Project → Project Settings → Plugins**.
 
----
+## How to use
+To be able to recognize keywords with this library you need an instance of the `KeywordMatcher` node. This node handles the underlying C++ API. It is configured with a `KeywordMatcherSetting` resource. In that resource, you will need to provide labels and ***UNCOMPRESSED*** `.wav` audio clips for the labels. The compression setting for the file used must be changed from the default in the import tab of Godot.
 
-## Full example
 
-```gdscript
-extends Node
+### `KeywordMatcher`
+This is the main class for the plugin. Just put that in your scene and set the settings to a valid `KeywordMatcherSetting` resource.
 
-@export var audio_stream: AudioStreamWAV
+It has 4 main methods you will need to use:
+|Method|Return Type |Description|
+|-----|-----|-----|
+|`recognize_wav(stream: AudioStreamWAV) `|`String`|Used to classify a AudioStreamWAV. It will return the best match for the labels in the KeywordMatcherSetting attached to the instance.|
+| `recognize_pcm(pcm: PackedFloat32Array)` |`String`|If you are using audio data other than an `AudioStreamWAV`, convert it to a `PackedFloat32Array` containing PCM audio samples. It needs to have the same sample rate as the settings.|
+|`recognize_wav_detailed(stream: AudioStreamWAV)`|`Dictionary`| This works similarly to the normal `recognize_wav` method but it will instead return a `Dictionary` with all labels as keys and the distance related to each. A lower score (distance) means a better match. |
+|`recognize_pcm_detailed(pcm: PackedFloat32Array)`|`Dictionary`| If you read the other descriptions, this will be pretty straight forward. Transform your audio sample into a PCM, pass it to this method and it will return a `Dictionary` with labels and scores.
+> [!WARNING]
+> WAVs are expected to be uncompressed 16 bits mono audio samples.
 
-func _ready() -> void:
-    var pcm := _wav_to_pcm(audio_stream)
+> [!WARNING]
+> PCMs are expected to represent a single channel floats, normalized (`[-1.0 , 1.0]`)
 
-    # 1. Compute MFCC features
-    var mfcc := MFCCProcessor.new()
-    var features: Array = mfcc.compute(pcm)
+### Using the gdextension
+If you don't feel like using the provided node, you can directly call the `DTWMatcher` from the GDExtension. The documentation is all provided *Godot style*. Visible on the editor or your favorite VSCode extension.
 
-    # 2. Compare two recordings
-    var dtw := DTWMatcher.new()
-    dtw.band_width = 20
+## Important stuff for best results
+Since this library is based on the distance between two clips there are some consideration that can affect the results drastically.
+### Silence trimming
+The node will try to handle the `AudioStreamWAV` to trim silence. It is a basic implementation and manual trimming could yield better results. Trimming silence allows the algorithm to focus on the actual words instead of comparing silence and background noise from two clips.
+### Compression
+The node unpacks a `.wav` file into a `PackedFloat32Array` and expects the `.wav` file to be uncompressed. If it uses the default import setting (Quite Ok Audio), the results will be corrupted and it will lead to random results.
+### Diversity
+The best results happen when there is a similarity between voices. To match for a variety of speakers, you need a variety of speakers for your samples. Try to have different types of voices and accents. Better yet, you can calibrate for a specific user by saving some things he said.
+### Less labels => More precision
+Since the algorithm compares to each label's audio clip, if a label is close to another, it will lead to imprecision and wrong classification. It can deal with a couple of words, but I don't think it is the best option for 10+ words (see demo). The more distinct the words, the more accurate it gets.
+## Demo
+In this repository, you can find a godot project that detects a spoken number in english (0-9). It can be used to try out some settings and their effect.
 
-    dtw.add_template("hello", features)   # enroll a template
+## Compiling
+You can compile the GDExtension by using `scons`.
 
-    # Later, with a new recording:
-    var new_features: Array = mfcc.compute(_wav_to_pcm(another_stream))
-    var result: Dictionary  = dtw.classify_with_score(new_features)
-    print("Best match: ", result["label"], "  distance: ", result["distance"])
-
-# Convert AudioStreamWAV data to a flat PackedFloat32Array of mono samples.
-func _wav_to_pcm(stream: AudioStreamWAV) -> PackedFloat32Array:
-    var data := stream.data           # PackedByteArray (16-bit LE stereo/mono)
-    var out  := PackedFloat32Array()
-    var i    := 0
-    while i + 1 < data.size():
-        var sample := int(data[i]) | (int(data[i + 1]) << 8)
-        if sample >= 32768: sample -= 65536
-        out.append(sample / 32768.0)
-        i += 2 * (2 if stream.stereo else 1)  # skip right channel if stereo
-    return out
+Make sure you have the python dependencies installed (in a virtual environment if you want):
+```bash
+pip install -r requirements.txt
 ```
+Then you can run the build:
+```
+scons
+```
+> [!TIP]
+> You can run `scons combiledb=yes` to allow extensions and IDEs to recognize symbols
+
+## Repository structures
+|Folder|Content|
+|------|-------|
+|`/project`|Contains the addon folder and the demo project. This is where the release package comes from|
+|`/include` and `/src`|The C++ code lives there, it is the code that is built for the GDExtension|
+|`/godot`|The Godot wrapper (with `godot-cpp`) to bridge the core C++ implementation|
+|`/python`|A python wrapper that uses `pybind11` to create bindings for the core library. It was used for testing and benchmarking the library|
+|`/doc_classes`|Used for the Godot documentation bundled with the GDExtension|
+
+## Possible future work
+- Implement a way to save the MFCC or PNCC values instead of shipping with the audio wav files.
+- Noise filtering
+- Calibrate for a user by pitching up and down their voice recordings when classifying
+
+## Contributing
+Open to issues and suggestions, PRs are also welcome.

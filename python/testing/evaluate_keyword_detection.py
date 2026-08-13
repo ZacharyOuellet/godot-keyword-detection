@@ -577,7 +577,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument(
         "--corpus-dir",
-        default="C:/Users/zacha/Documents/_audioMozilla/cv-corpus-7.0-singleword",
+        required=True,
+        help="Path to cv-corpus-7.0-singleword (or similar) root folder",
     )
     parser.add_argument("--locales", nargs="*", default=None, help="Subset of locale codes to run (default: all found)")
     parser.add_argument("--tsv-names", nargs="*", default=["validated.tsv"])

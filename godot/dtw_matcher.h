@@ -23,15 +23,15 @@ public:
     };
 
     // --- Distance metric ---
-    void set_distance_metric(int p_metric);
-    int get_distance_metric() const;
+    void set_distance_metric(DistanceMetric p_metric);
+    DistanceMetric get_distance_metric() const;
 
     // --- Sakoe-Chiba band width (1 = no constraint) ---
     void set_band_width(float);
     float get_band_width() const;
 
-    void set_classify_method(int p_method);
-    int get_classify_method() const;
+    void set_classify_method(ClassifyMethod p_method);
+    ClassifyMethod get_classify_method() const;
 
     float compute(const TypedArray<PackedFloat32Array>& p_seq_a,
         const TypedArray<PackedFloat32Array>& p_seq_b) const;

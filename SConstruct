@@ -58,7 +58,10 @@ library = env.SharedLibrary(
     source=sources,
 )
 
-copy = env.Install("{}/bin/{}/".format(projectdir, env["platform"]), library)
+copy = env.Install(
+    "{}/addons/dtw_keyword_spotting/bin/{}/".format(projectdir, env["platform"]),
+    library,
+)
 
 default_args = [library, copy]
 Default(*default_args)

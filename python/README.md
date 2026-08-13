@@ -19,6 +19,3 @@ To use the library you need to install it with.
 cd ./python # Make sure you are in the python folder
 pip install -e .
 ```
-
-## Notes
-If you are trying to train the backbone (`testing/ML/tain_pretrain.py)
