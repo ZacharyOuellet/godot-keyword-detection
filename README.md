@@ -43,6 +43,25 @@ The best results happen when there is a similarity between voices. To match for 
 Since the algorithm compares to each label's audio clip, if a label is close to another, it will lead to imprecision and wrong classification. It can deal with a couple of words, but I don't think it is the best option for 10+ words (see demo). The more distinct the words, the more accurate it gets.
 ## Demo
 In this repository, you can find a godot project that detects a spoken number in english (0-9). It can be used to try out some settings and their effect.
+## Supported platforms
+|Platform|Architecture|Supported|
+|:--:|:----:|:--:|
+|linux|x86_64|:white_check_mark:|
+|linux|x86_32|:white_check_mark:|
+|linux|arm64|:white_check_mark:|
+|linux|arm32|:white_check_mark:|
+|windows|x86_64|:white_check_mark:|
+|windows|x86_32|:white_check_mark:|
+|windows|arm64|:white_check_mark:|
+|macos|universal|:white_check_mark:|
+|android|x86_64|:white_check_mark:|
+|android|x86_32|:white_check_mark:|
+|android|arm64|:white_check_mark:|
+|android|arm32|:white_check_mark:|
+|ios|arm64|:white_check_mark:|
+|web|wasm32|:white_check_mark:|
+> [!NOTE]
+> The plugin was developed on `windows x86_64` and it was tested on this platform only. The build for other platforms should work but I did not test them.
 
 ## Compiling
 You can compile the GDExtension by using `scons`.
