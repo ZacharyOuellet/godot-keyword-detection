@@ -118,8 +118,6 @@ horizontal_alignment = 1
 [node name="KeywordMatcher" type="Node" parent="." unique_id=999419804]
 script = ExtResource("2_0bhed")
 settings = ExtResource("3_m0rpm")
-debug_save_trimmed_wav = true
-debug_trimmed_wav_dir = "res://debug"
 metadata/_custom_type_script = "uid://27noi72or4kg"
 
 [connection signal="recording_confirmed" from="CompareContainer/Recorder" to="." method="_on_compare_request"]

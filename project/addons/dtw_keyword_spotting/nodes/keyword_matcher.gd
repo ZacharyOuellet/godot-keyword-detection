@@ -73,6 +73,8 @@ func recognize_wav(stream: AudioStreamWAV) -> String:
 	if settings == null:
 		push_error("KeywordMatcher is not ready: assign a KeywordMatcherSettings resource first.")
 		return ""
+	if stream ==null :
+		return ""
 	var resampled_stream = linear_resample(stream, settings.sample_rate)
 	return recognize_pcm(_wav_to_pcm(resampled_stream))
 
@@ -85,7 +87,7 @@ func recognize_pcm(pcm: PackedFloat32Array) -> String:
 		push_error("KeywordMatcher is not ready: assign a KeywordMatcherSettings resource first.")
 		return ""
 	var trimmed: PackedFloat32Array = _trim_silence(pcm, settings.sample_rate)
-	var feature: PackedFloat32Array = _feature_extractor.compute(trimmed)
+	var feature: Array[PackedFloat32Array] = _feature_extractor.compute(trimmed)
 
 	var label: String = _dtw.classify(feature)
 
@@ -101,6 +103,8 @@ func recognize_pcm(pcm: PackedFloat32Array) -> String:
 func recognize_wav_detailed(stream: AudioStreamWAV) -> Dictionary:
 	if settings == null:
 		push_error("KeywordMatcher is not ready: assign a KeywordMatcherSettings resource first.")
+		return {}
+	if stream ==null :
 		return {}
 	var resampled_stream = linear_resample(stream, settings.sample_rate)
 	return recognize_pcm_detailed(_wav_to_pcm(resampled_stream))
