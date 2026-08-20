@@ -105,7 +105,6 @@
 [resource]
 script = ExtResource("1_ecte2")
 classification_method = 0
-sakoe_chiba_band_width = 1.0
 feature_extraction_method = 0
 sample_rate = 16000
 keyword_dataset = {
