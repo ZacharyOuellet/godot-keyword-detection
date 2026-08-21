@@ -24,14 +24,11 @@ linux.x86_64.single.release = "./linux/libgodot_keyword_detection.linux.template
 linux.arm64.single.debug = "./linux/libgodot_keyword_detection.linux.template_debug.arm64.so"
 linux.arm64.single.release = "./linux/libgodot_keyword_detection.linux.template_release.arm64.so"
 
-linux.rv64.single.debug = "./linux/libgodot_keyword_detection.linux.template_debug.rv64.so"
-linux.rv64.single.release = "./linux/libgodot_keyword_detection.linux.template_release.rv64.so"
-
 android.x86_64.single.debug = "./android/libgodot_keyword_detection.android.template_debug.x86_64.so"
 android.x86_64.single.release = "./android/libgodot_keyword_detection.android.template_release.x86_64.so"
 
 android.arm64.single.debug = "./android/libgodot_keyword_detection.android.template_debug.arm64.so"
 android.arm64.single.release = "./android/libgodot_keyword_detection.android.template_release.arm64.so"
 
-web.wasm32.single.debug = "./web/libgodot_keyword_detection.web.template_debug.wasm32.nothreads.wasm"
-web.wasm32.single.release = "./web/libgodot_keyword_detection.web.template_release.wasm32.nothreads.wasm"
+web.wasm32.single.debug = "./web/libgodot_keyword_detection.web.template_debug.wasm32.wasm"
+web.wasm32.single.release = "./web/libgodot_keyword_detection.web.template_release.wasm32.wasm"
