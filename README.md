@@ -1,11 +1,11 @@
-# godot-keyword-detection
+# Godot-keyword-detection
 
 A Godot 4 plugin that allows keyword spotting using **Dynamic Time Warping (DTW)**. The main computation happens in a GDExtension in C++ but a handy node makes it easy to use.
 
 ---
 
 ## Installation
-See releases for the content to add it to your godot project. It is also available on the Godot Asset Library
+See releases for the content to add it to your Godot project. It is also available on the Godot Asset Library
 
 
 ## How to use
@@ -28,7 +28,7 @@ It has 4 main methods you will need to use:
 > [!WARNING]
 > PCMs are expected to represent a single channel floats, normalized (`[-1.0 , 1.0]`)
 
-### Using the gdextension
+### Using the GDExtension
 If you don't feel like using the provided node, you can directly call the `DTWMatcher` from the GDExtension. The documentation is all provided *Godot style*. Visible on the editor or your favorite VSCode extension.
 
 ## Important stuff for best results
@@ -42,7 +42,7 @@ The best results happen when there is a similarity between voices. To match for 
 ### Less labels => More precision
 Since the algorithm compares to each label's audio clip, if a label is close to another, it will lead to imprecision and wrong classification. It can deal with a couple of words, but I don't think it is the best option for 10+ words (see demo). The more distinct the words, the more accurate it gets.
 ## Demo
-In this repository, you can find a godot project that detects a spoken number in english (0-9). It can be used to try out some settings and their effect.
+In this repository, you can find a Godot project that detects a spoken number in english (0-9). It can be used to try out some settings and their effect.
 ## Supported platforms
 |Platform|Architecture|Supported|
 |:--:|:----:|:--:|
